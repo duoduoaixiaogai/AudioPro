@@ -34,7 +34,15 @@ SOURCES += main.cpp\
     track.cpp \
     overlaypanel.cpp \
     backedpanel.cpp \
-    overlay.cpp
+    overlay.cpp \
+    commandmanager.cpp \
+    importraw.cpp \
+    multiformatreader.cpp \
+    SampleFormat.cpp \
+    SpecPowerMeter.cpp \
+    FFT.cpp \
+    FormatClassifier.cpp \
+    importrawdialog.cpp
 
 HEADERS  += project.h \
     audioapp.h \
@@ -60,6 +68,19 @@ HEADERS  += project.h \
     trackpanel.h \
     overlaypanel.h \
     overlay.h \
-    cellularpanel.h
+    cellularpanel.h \
+    commandmanager.h \
+    importraw.h \
+    formatclassifier.h \
+    multiformatreader.h \
+    specpowermeter.h \
+    SampleFormat.h \
+    FFT.h \
+    importrawdialog.h
 
-FORMS    += project.ui
+FORMS    += project.ui \
+    importrawdialog.ui
+
+LIBS += -Lf:/AudioPro/libsndfile/libs -llibsndfile
+
+INCLUDEPATH = f:/AudioPro/libsndfile

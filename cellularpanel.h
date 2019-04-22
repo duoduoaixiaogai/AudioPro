@@ -58,6 +58,21 @@ namespace RF {
 
         int mostRecentXCoord() const;
         void handleCursorForPresentMouseState(bool doHit = true);
+    protected:
+        bool hasEscape();
+        bool cancelDragging(bool escaping);
+        void doContextMenu(TrackPanelCell *pCell = nullptr);
+        void clearTargets();
+    private:
+        void visit(
+                const QRect &rect, const std::shared_ptr<TrackPanelNode> &node,
+                Visitor &visitor);
+        bool hasRotation();
+        bool changeTarget(bool forward, bool cycle);
+        
+        // 事件类没有写
+        void handleInterruptedDrag(); 
+        //void uncapture(bool escaping, )
     };
 }
 
