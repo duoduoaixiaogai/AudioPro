@@ -9,26 +9,34 @@ namespace Ui {
     class ImportRawDialog;
 }
 
-class ImportRawDialog : public QDialog
-{
-    Q_OBJECT
+namespace RF {
+    class ImportRawDialog : public QDialog
+    {
+        Q_OBJECT
 
-public:
-    explicit ImportRawDialog(int encoding, unsigned channels,
-                             int offset, double rate,
-                             QWidget *parent = nullptr);
-    ~ImportRawDialog();
+    public:
+        explicit ImportRawDialog(int encoding, unsigned channels,
+                                 int offset, double rate,
+                                 QWidget *parent = nullptr);
+        ~ImportRawDialog();
 
-    int mEncoding;
-    unsigned mChannels;
-    int mOffset;
-    double mRate;
-    double mPercent;
+        int mEncoding;
+        unsigned mChannels;
+        int mOffset;
+        double mRate;
+        double mPercent;
+    private slots:
+        void comboBoxChanged(int index);
 
-private:
-    Ui::ImportRawDialog *ui;
-    int mNumEncoding;
-    ArrayOf<int> mEncodingSubtype;
-};
+        void on_buttonBox_accepted();
+
+        void on_buttonBox_rejected();
+
+    private:
+        Ui::ImportRawDialog *ui;
+        int mNumEncodings;
+        ArrayOf<int> mEncodingSubtype;
+    };
+}
 
 #endif // IMPORTRAWDIALOG_H

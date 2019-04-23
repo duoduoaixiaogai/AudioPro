@@ -100,6 +100,14 @@ namespace RF {
         }
 
         TrackHolders newTracks;
+
+        importRaw(this, fileName, mTrackFactory.get(), newTracks);
+
+        if (newTracks.size() <= 0)
+              return;
+
+        addImportedTracks(fileName, std::move(newTracks));
+
     }
 
 }

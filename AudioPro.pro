@@ -42,7 +42,10 @@ SOURCES += main.cpp\
     SpecPowerMeter.cpp \
     FFT.cpp \
     FormatClassifier.cpp \
-    importrawdialog.cpp
+    importrawdialog.cpp \
+    FileFormats.cpp \
+    WaveTrack.cpp \
+    XMLTagHandler.cpp
 
 HEADERS  += project.h \
     audioapp.h \
@@ -76,7 +79,10 @@ HEADERS  += project.h \
     specpowermeter.h \
     SampleFormat.h \
     FFT.h \
-    importrawdialog.h
+    importrawdialog.h \
+    FileFormats.h \
+    WaveTrack.h \
+    XMLTagHandler.h
 
 FORMS    += project.ui \
     importrawdialog.ui
