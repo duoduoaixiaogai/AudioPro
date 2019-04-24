@@ -22,6 +22,10 @@ namespace RF {
 
     }
 
+    AudioProject* GetActiveProject() {
+        return gActiveProject;
+    }
+
     AudioProject* createNewAudioProject() {
         gAudioProjects.push_back(AProjectHolder{
                                      new AudioProject(

@@ -3,9 +3,12 @@
 #include "formatclassifier.h"
 #include "importrawdialog.h"
 #include "FileFormats.h"
-#include "track.h"
+#include "WaveTrack.h"
 
 #include <QWidget>
+#include <QFile>
+
+#include "track.h"
 
 namespace RF {
     void importRaw(QWidget *parent, const QString &fileName,
@@ -41,7 +44,7 @@ namespace RF {
 
             numChannels = std::max(1u, numChannels);
 
-            ImportRawDialog dlog(encoding, numChannels, (int)offset, rate, parent);
+            ImportRawDialog dlog(encoding, numChannels, static_cast<int>(offset), rate, parent);
             dlog.show();
             if (!dlog.result()) {
                 return;
@@ -50,12 +53,12 @@ namespace RF {
             encoding = dlog.mEncoding;
             numChannels = dlog.mChannels;
             rate = dlog.mRate;
-            offset = (sf_count_t)dlog.mOffset;
+            offset = static_cast<sf_count_t>(dlog.mOffset);
             percent = dlog.mPercent;
 
             memset(&sndInfo, 0, sizeof(SF_INFO));
-            sndInfo.samplerate = (int)rate;
-            sndInfo.channels = (int)numChannels;
+            sndInfo.samplerate = static_cast<int>(rate);
+            sndInfo.channels = static_cast<int>(numChannels);
             sndInfo.format = encoding | SF_FORMAT_RAW;
 
             QFile f(fileName);
@@ -67,7 +70,7 @@ namespace RF {
 
             if (!sndFile){
                 char str[1000];
-                sf_error_str((SNDFILE *)NULL, str, 1000);
+                sf_error_str(static_cast<SNDFILE *>(nullptr), str, 1000);
                 //wxPrintf("%s\n", str);
 
                 //throw FileException{ FileException::Cause::Open, fileName };
@@ -86,7 +89,7 @@ namespace RF {
             SFCall<sf_count_t>(sf_seek, sndFile.get(), 0, SEEK_SET);
             auto totalFrames =
                     // fraction of a sf_count_t value
-                    (sampleCount)(sndInfo.frames * percent / 100.0);
+                    static_cast<sampleCount>(sndInfo.frames * percent / 100.0);
 
             if (format != floatSample &&
                     sf_subtype_more_than_16_bits(encoding))
@@ -104,7 +107,7 @@ namespace RF {
                 }
             }
             const auto firstChannel = channels.begin()->get();
-            //auto maxBlockSize = firstChannel->GetMaxBlockSize();
+            auto maxBlockSize = firstChannel->GetMaxBlockSize();
             SampleBuffer srcbuffer(maxBlockSize * numChannels, format);
             SampleBuffer buffer(maxBlockSize, format);
 

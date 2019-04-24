@@ -22,7 +22,9 @@ namespace RF {
     class CommandManager;
     class TrackFactory;
 
+    AudioProject* GetActiveProject();
     AudioProject* createNewAudioProject();
+
 
     using AProjectHolder = std::shared_ptr<AudioProject>;
     using AProjectArray = QVector<AProjectHolder>;
@@ -44,7 +46,8 @@ namespace RF {
         const CommandManager* getCommandManager() const {
             return mCommandManager.get();
         }
-
+        sampleFormat GetDefaultFormat() { return mDefaultFormat; }
+        double GetRate() const { return mRate; }
     private:
         void createMenus();
         void onImportRaw();
@@ -60,6 +63,8 @@ namespace RF {
         QFrame *mMainFrame;
         std::unique_ptr<CommandManager> mCommandManager;
         std::unique_ptr<TrackFactory> mTrackFactory{};
+        sampleFormat mDefaultFormat;
+        double mRate;
     };
 }
 

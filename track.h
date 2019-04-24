@@ -8,12 +8,13 @@
 
 **********************************************************************/
 
-#ifndef __AUDACITY_TRACK__
-#define __AUDACITY_TRACK__
+#ifndef TRACK_H
+#define TRACK_H
 
 //#include "Audacity.h"
 
-#include "MemoryX.h"
+//#include "MemoryX.h"
+#include "memoryx.h"
 #include <vector>
 #include <list>
 #include <functional>
@@ -24,7 +25,7 @@
 
 //#include "Experimental.h"
 #include "SampleFormat.h"
-//#include "tracks/ui/CommonTrackPanelCell.h"
+#include "CommonTrackPanelCell.h"
 //#include "xml/XMLTagHandler.h"
 #include "XMLTagHandler.h"
 
@@ -33,7 +34,7 @@
 #endif
 
 namespace RF {
-    class wxTextFile;
+//    class wxTextFile;
     class DirManager;
     class Track;
     class AudioTrack;
@@ -45,7 +46,7 @@ namespace RF {
     class TrackPanelResizerCell;
     class WaveTrack;
     class NoteTrack;
-    class AudacityProject;
+//    class AudacityProject;
     class ZoomInfo;
 
     class SelectHandle;
@@ -121,7 +122,7 @@ namespace RF {
         Pair<AudioTrack,    TrackKind::Audio>,
         Pair<PlayableTrack, TrackKind::Playable>,
         Pair<LabelTrack,    TrackKind::Label>,
-        Pair<NoteTrack,     TrackKind::Note>,
+//        Pair<NoteTrack,     TrackKind::Note>,
         Pair<TimeTrack,     TrackKind::Time>,
         Pair<WaveTrack,     TrackKind::Wave>
         // New classes can be added easily to this list
@@ -190,7 +191,7 @@ namespace RF {
         long mValue;
     };
 
-    class AUDACITY_DLL_API Track /* not final */
+    class /*AUDACITY_DLL_API*/ Track /* not final */
             : public CommonTrackPanelCell, public XMLTagHandler
     {
         friend class TrackList;
@@ -205,8 +206,8 @@ namespace RF {
         int            mIndex;
         int            mY;
         int            mHeight;
-        wxString       mName;
-        wxString       mDefaultName;
+        QString       mName;
+        QString       mDefaultName;
 
     private:
         bool           mSelected;
@@ -283,7 +284,7 @@ namespace RF {
          const AudacityProject *pProject, int currentTool, bool bMultiTool)
         = 0;
 
-        mutable wxSize vrulerSize;
+//        mutable wxSize vrulerSize;
 
         // Return another, associated TrackPanelCell object that implements the
         // drop-down, close and minimize buttons, etc.
@@ -368,17 +369,18 @@ namespace RF {
 
         void Init(const Track &orig);
 
-        using Holder = std::unique_ptr<Track>;
+//        using Holder = std::unique_ptr<Track>;
+        typedef std::unique_ptr<Track> Holder;
         virtual Holder Duplicate() const = 0;
 
         // Called when this track is merged to stereo with another, and should
         // take on some paramaters of its partner.
         virtual void Merge(const Track &orig);
 
-        wxString GetName() const { return mName; }
-        void SetName( const wxString &n );
-        wxString GetDefaultName() const { return mDefaultName; }
-        void SetDefaultName( const wxString &n ) { mDefaultName = n; }
+        QString GetName() const { return mName; }
+        void SetName( const QString &n );
+        QString GetDefaultName() const { return mDefaultName; }
+        void SetDefaultName( const QString &n ) { mDefaultName = n; }
 
         bool GetSelected() const { return mSelected; }
 
@@ -404,7 +406,7 @@ namespace RF {
         // Create a NEW track and modify this track
         // Return non-NULL or else throw
         // May assume precondition: t0 <= t1
-        virtual Holder Cut(double WXUNUSED(t0), double WXUNUSED(t1)) = 0;
+        virtual Holder Cut(double t0, double t1) = 0;
 
         // Create a NEW track and don't modify this track
         // Return non-NULL or else throw
@@ -412,22 +414,22 @@ namespace RF {
         // from those stored in a project
         // May assume precondition: t0 <= t1
         virtual Holder Copy
-        (double WXUNUSED(t0), double WXUNUSED(t1), bool forClipboard = true) const = 0;
+        (double t0, double t1, bool forClipboard = true) const = 0;
 
         // May assume precondition: t0 <= t1
-        virtual void Clear(double WXUNUSED(t0), double WXUNUSED(t1)) = 0;
+        virtual void Clear(double t0, double t1) = 0;
 
-        virtual void Paste(double WXUNUSED(t), const Track * WXUNUSED(src)) = 0;
+        virtual void Paste(double t, const Track * src) = 0;
 
         // This can be used to adjust a sync-lock selected track when the selection
         // is replaced by one of a different length.
         virtual void SyncLockAdjust(double oldT1, double newT1);
 
         // May assume precondition: t0 <= t1
-        virtual void Silence(double WXUNUSED(t0), double WXUNUSED(t1)) = 0;
+        virtual void Silence(double t0, double t1) = 0;
 
         // May assume precondition: t0 <= t1
-        virtual void InsertSilence(double WXUNUSED(t), double WXUNUSED(len)) = 0;
+        virtual void InsertSilence(double t, double len) = 0;
 
     private:
         virtual TrackKind GetKind() const { return TrackKind::None; }
@@ -711,7 +713,7 @@ namespace RF {
         }
 
         // XMLTagHandler callback methods -- NEW virtual for writing
-        virtual void WriteXML(XMLWriter &xmlFile) const = 0;
+//        virtual void WriteXML(XMLWriter &xmlFile) const = 0;
 
         // Returns true if an error was encountered while trying to
         // open the track from XML
@@ -761,14 +763,14 @@ namespace RF {
         AudioTrack(const Track &orig) : Track{ orig } {}
 
         // Serialize, not with tags of its own, but as attributes within a tag.
-        void WriteXMLAttributes(XMLWriter &WXUNUSED(xmlFile)) const {}
+//        void WriteXMLAttributes(XMLWriter &WXUNUSED(xmlFile)) const {}
 
         // Return true iff the attribute is recognized.
-        bool HandleXMLAttribute(const wxChar * /*attr*/, const wxChar * /*value*/)
-        { return false; }
+//        bool HandleXMLAttribute(const wxChar * /*attr*/, const wxChar * /*value*/)
+//        { return false; }
     };
 
-    class AUDACITY_DLL_API PlayableTrack /* not final */ : public AudioTrack
+    class /*AUDACITY_DLL_API*/ PlayableTrack /* not final */ : public AudioTrack
     {
     public:
         PlayableTrack(const std::shared_ptr<DirManager> &projDirManager)
@@ -784,10 +786,10 @@ namespace RF {
         void Merge( const Track &init ) override;
 
         // Serialize, not with tags of its own, but as attributes within a tag.
-        void WriteXMLAttributes(XMLWriter &xmlFile) const;
+//        void WriteXMLAttributes(XMLWriter &xmlFile) const;
 
         // Return true iff the attribute is recognized.
-        bool HandleXMLAttribute(const wxChar *attr, const wxChar *value);
+//        bool HandleXMLAttribute(const wxChar *attr, const wxChar *value);
 
     protected:
         bool                mMute { false };
@@ -1120,52 +1122,52 @@ namespace RF {
  * Clear, and Contains, plus serialization of the list of tracks.
  */
 
-    struct TrackListEvent : public wxCommandEvent
-    {
-        explicit
-        TrackListEvent(
-                wxEventType commandType,
-                const std::weak_ptr<Track> &pTrack = {}, int code = -1)
-            : wxCommandEvent{ commandType }
-            , mpTrack{ pTrack }
-            , mCode{ code }
-        {}
-
-        TrackListEvent( const TrackListEvent& ) = default;
-
-        wxEvent *Clone() const override { return new TrackListEvent(*this); }
-
-        std::weak_ptr<Track> mpTrack;
-        int mCode;
-    };
+//    struct TrackListEvent : public wxCommandEvent
+//    {
+//        explicit
+//        TrackListEvent(
+//                wxEventType commandType,
+//                const std::weak_ptr<Track> &pTrack = {}, int code = -1)
+//            : wxCommandEvent{ commandType }
+//            , mpTrack{ pTrack }
+//            , mCode{ code }
+//        {}
+//
+//        TrackListEvent( const TrackListEvent& ) = default;
+//
+//        wxEvent *Clone() const override { return new TrackListEvent(*this); }
+//
+//        std::weak_ptr<Track> mpTrack;
+//        int mCode;
+//    };
 
     // Posted when the set of selected tracks changes.
-    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
-                             EVT_TRACKLIST_SELECTION_CHANGE, TrackListEvent);
+//    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
+//                             EVT_TRACKLIST_SELECTION_CHANGE, TrackListEvent);
+//
+//    // Posted when certain fields of a track change.
+//    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
+//                             EVT_TRACKLIST_TRACK_DATA_CHANGE, TrackListEvent);
+//
+//    // Posted when tracks are reordered but otherwise unchanged.
+//    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
+//                             EVT_TRACKLIST_PERMUTED, TrackListEvent);
+//
+//    // Posted when some track changed its height.
+//    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
+//                             EVT_TRACKLIST_RESIZING, TrackListEvent);
+//
+//    // Posted when a track has been added to a tracklist.
+//    // Also posted when one track replaces another
+//    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
+//                             EVT_TRACKLIST_ADDITION, TrackListEvent);
+//
+//    // Posted when a track has been deleted from a tracklist.
+//    // Also posted when one track replaces another
+//    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
+//                             EVT_TRACKLIST_DELETION, TrackListEvent);
 
-    // Posted when certain fields of a track change.
-    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
-                             EVT_TRACKLIST_TRACK_DATA_CHANGE, TrackListEvent);
-
-    // Posted when tracks are reordered but otherwise unchanged.
-    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
-                             EVT_TRACKLIST_PERMUTED, TrackListEvent);
-
-    // Posted when some track changed its height.
-    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
-                             EVT_TRACKLIST_RESIZING, TrackListEvent);
-
-    // Posted when a track has been added to a tracklist.
-    // Also posted when one track replaces another
-    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
-                             EVT_TRACKLIST_ADDITION, TrackListEvent);
-
-    // Posted when a track has been deleted from a tracklist.
-    // Also posted when one track replaces another
-    wxDECLARE_EXPORTED_EVENT(AUDACITY_DLL_API,
-                             EVT_TRACKLIST_DELETION, TrackListEvent);
-
-    class TrackList final : public wxEvtHandler, public ListOfTracks
+    class TrackList final : /*public wxEvtHandler,*/ public ListOfTracks
     {
         // privatize this, make you use Swap instead:
         using ListOfTracks::swap;
@@ -1616,7 +1618,7 @@ namespace RF {
         std::vector< Updater > mUpdaters;
     };
 
-    class AUDACITY_DLL_API TrackFactory
+    class /*AUDACITY_DLL_API*/ TrackFactory
     {
     private:
         TrackFactory(const std::shared_ptr<DirManager> &dirManager, const ZoomInfo *zoomInfo):
@@ -1627,8 +1629,8 @@ namespace RF {
 
         const std::shared_ptr<DirManager> mDirManager;
         const ZoomInfo *const mZoomInfo;
-        friend class AudacityProject;
-        friend class BenchmarkDialog;
+//        friend class AudacityProject;
+//        friend class BenchmarkDialog;
 
     public:
         // These methods are defined in WaveTrack.cpp, NoteTrack.cpp,
@@ -1636,8 +1638,8 @@ namespace RF {
         std::unique_ptr<WaveTrack> DuplicateWaveTrack(const WaveTrack &orig);
         std::unique_ptr<WaveTrack> NewWaveTrack(sampleFormat format = (sampleFormat)0,
                                                 double rate = 0);
-        std::unique_ptr<LabelTrack> NewLabelTrack();
-        std::unique_ptr<TimeTrack> NewTimeTrack();
+//        std::unique_ptr<LabelTrack> NewLabelTrack();
+//        std::unique_ptr<TimeTrack> NewTimeTrack();
 #if defined(USE_MIDI)
         std::unique_ptr<NoteTrack> NewNoteTrack();
 #endif

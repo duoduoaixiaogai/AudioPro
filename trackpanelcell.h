@@ -1,18 +1,161 @@
-ï»¿#ifndef TRACKPANELCELL_H
-#define TRACKPANELCELL_H
+/**********************************************************************
+
+Audacity: A Digital Audio Editor
+
+TrackPanelCell.h
+
+Paul Licameli
+
+**********************************************************************/
+
+#ifndef __AUDACITY_TRACK_PANEL_CELL__
+#define __AUDACITY_TRACK_PANEL_CELL__
+
+//#include "MemoryX.h"
+#include "memoryx.h"
+
+#include <vector>
 
 namespace RF {
-    class TrackPanelNode {
+    class AudacityProject;
+    struct HitTestPreview;
+    struct TrackPanelMouseEvent;
+    struct TrackPanelMouseState;
+    class ViewInfo;
+    class wxKeyEvent;
+    class wxPoint;
+    class wxRect;
+    class wxWindow;
+
+    class UIHandle;
+    using UIHandlePtr = std::shared_ptr<UIHandle>;
+
+
+    /// \brief The TrackPanel is built up of nodes, subtrees of the CellularPanel's area
+    /// This class itself has almost nothing in it.  Other classes derived from it
+    /// build up the capabilities.
+    class /*AUDACITY_DLL_API*/ /* not final */ TrackPanelNode
+    {
     public:
-        TrackPanelNode() = default;
+        TrackPanelNode();
         virtual ~TrackPanelNode() = 0;
     };
 
-    class TrackPanelCell : public TrackPanelNode {
+    // A node of the TrackPanel that contins other nodes.
+    class /*AUDACITY_DLL_API*/ TrackPanelGroup /* not final */ : public TrackPanelNode
+    {
     public:
-        virtual ~TrackPanelCell() = 0;
+        TrackPanelGroup();
+        virtual ~TrackPanelGroup();
 
+        enum class Axis { X, Y };
+
+        // A refinement of a given rectangle partitions it along one of its axes
+        // and associates TrackPanelNodes with the partition.
+        // The sequence of coordinates should be increasing, giving left or top
+        // coordinates of sub-rectangles.
+        // Null pointers are permitted to define empty spaces with no cell object.
+        // If the first coordinate is right of or below the rectangle boundary,
+        // then that also defines an empty space at the edge.
+        // Sub-rectangles may be defined partly or wholly out of the bounds of the
+        // given rectangle.  Such portions are ignored.
+        using Child = std::pair< int, std::shared_ptr<TrackPanelNode> >;
+        using Refinement = std::vector< Child >;
+        using Subdivision = std::pair< Axis, Refinement >;
+
+        // Report a subdivision of one of the axes of the given rectangle
+        virtual Subdivision Children( const wxRect &rect ) = 0;
+    };
+
+    /// Abstract base class defining TrackPanel's access to specialist classes that
+    /// implement drawing and user interactions
+    /*
+³éÏó»ùÀà£¬¶¨ÒåTrackPanel¶ÔÊµÏÖ»æÍ¼ºÍÓÃ»§½»»¥µÄ×¨ÒµÀàµÄ·ÃÎÊ
+*/
+    class /*AUDACITY_DLL_API*/ TrackPanelCell /* not final */ : public TrackPanelNode
+    {
+    public:
+        virtual ~TrackPanelCell () = 0;
+
+        // May supply default cursor, status message, and tooltip, when there is no
+        // handle to hit at the mouse position, or the handle does not supply them.
+        // µ±Ã»ÓĞÊÖ±úÇÃ»÷Êó±êÎ»ÖÃ»òÊÖ±ú²»Ìá¹©ËüÃÇÊ±£¬¿ÉÒÔÌá¹©Ä¬ÈÏ¹â±ê£¬
+        //  ×´Ì¬ÏûÏ¢ºÍ¹¤¾ßÌáÊ¾
+        virtual HitTestPreview DefaultPreview
+        (const TrackPanelMouseState &state, const AudacityProject *pProject);
+
+        // Return pointers to objects that can be queried for a status
+        // bar message and cursor appropriate to the point, and that dispatch
+        // mouse button events.
+        // The button-down state passed to the function is as it will be at click
+        // time -- not necessarily as it is now.
+        /*
+    ·µ»ØÖ¸Ïò¶ÔÏóµÄÖ¸Õë£¬¿ÉÒÔ²éÑ¯×´Ì¬À¸ÏûÏ¢ºÍÊÊºÏ¸ÃµãµÄ¹â±ê£¬
+    ÒÔ¼°µ÷¶ÈÊó±ê°´Å¥ÊÂ¼ş¡£
+    ´«µİ¸øº¯ÊıµÄ°´Å¥×´Ì¬Óëµã»÷Ê±Ò»Ñù - ²»Ò»¶¨¾ÍÏñÏÖÔÚÒ»Ñù¡£
+    */
+        virtual std::vector<UIHandlePtr> HitTest
+        (const TrackPanelMouseState &state,
+         const AudacityProject *pProject) = 0;
+
+        // Return value is a bitwise OR of RefreshCode values
+        // Include Cancelled in the flags to indicate that the event is not handled.
+        // Default does only that.
+        /*
+   ·µ»ØÖµÊÇRefreshCodeÖµµÄ°´Î»OR£¬°üº¬ÔÚ±êÖ¾ÖĞÒÑÈ¡Ïû£¬±íÊ¾Î´´¦ÀíÊÂ¼ş¡£
+Ä¬ÈÏÖ»×öÄÇ¸ö
+   */
+        virtual unsigned HandleWheelRotation
+        (const TrackPanelMouseEvent &event,
+         AudacityProject *pProject);
+
+        // A cell may delegate context menu handling to another one
+        // µ¥Ôª¸ñ¿ÉÒÔ½«ÉÏÏÂÎÄ²Ëµ¥´¦ÀíÎ¯ÍĞ¸øÁíÒ»¸ö
+        virtual std::shared_ptr<TrackPanelCell> ContextMenuDelegate()
+        { return {}; }
+
+        // The pPosition parameter indicates mouse position but may be NULL
+        // Return value is a bitwise OR of RefreshCode values
+        // Default implementation does nothing
+        virtual unsigned DoContextMenu
+        (const wxRect &rect,
+         wxWindow *pParent, wxPoint *pPosition);
+
+        // Return value is a bitwise OR of RefreshCode values
+        // Default skips the event and does nothing
+        /*
+   pPosition²ÎÊıÖ¸Ê¾Êó±êÎ»ÖÃµ«¿ÉÄÜÎªNULL·µ»ØÖµÊÇRefreshCode
+   ÖµµÄ°´Î»ORÄ¬ÈÏÊµÏÖ²»Ö´ĞĞÈÎºÎ²Ù×÷
+   */
+        virtual unsigned CaptureKey
+        (wxKeyEvent &event, ViewInfo &viewInfo, wxWindow *pParent);
+
+        // Return value is a bitwise OR of RefreshCode values
+        // Default skips the event and does nothing
+        /*
+   ·µ»ØÖµÊÇRefreshCodeÖµµÄ°´Î»OR¡£Ä¬ÈÏÖµ»áÌø¹ıÊÂ¼ş²¢ÇÒ²»Ö´ĞĞÈÎºÎ²Ù×÷
+   */
+        virtual unsigned KeyDown
+        (wxKeyEvent & event, ViewInfo &viewInfo, wxWindow *pParent);
+
+        // Return value is a bitwise OR of RefreshCode values
+        // Default skips the event and does nothing
+        /*
+   ·µ»ØÖµÊÇRefreshCodeÖµµÄ°´Î»OR
+Ä¬ÈÏ»áÌø¹ı¸ÃÊÂ¼ş²¢ÇÒ²»Ö´ĞĞÈÎºÎ²Ù×÷
+   */
+        virtual unsigned KeyUp
+        (wxKeyEvent & event, ViewInfo &viewInfo, wxWindow *pParent);
+
+        // Return value is a bitwise OR of RefreshCode values
+        // Default skips the event and does nothing
+        /*
+   ·µ»ØÖµÊÇRefreshCodeÖµµÄ°´Î»OR
+Ä¬ÈÏ»áÌø¹ı¸ÃÊÂ¼ş²¢ÇÒ²»Ö´ĞĞÈÎºÎ²Ù×÷
+   */
+        virtual unsigned Char
+        (wxKeyEvent & event, ViewInfo &viewInfo, wxWindow *pParent);
     };
 }
 
-#endif // TRACKPANELCELL_H
+#endif

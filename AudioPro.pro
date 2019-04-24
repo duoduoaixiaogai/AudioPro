@@ -45,7 +45,10 @@ SOURCES += main.cpp\
     importrawdialog.cpp \
     FileFormats.cpp \
     WaveTrack.cpp \
-    XMLTagHandler.cpp
+    XMLTagHandler.cpp \
+    DirManager.cpp \
+    XMLWriter.cpp \
+    WaveClip.cpp
 
 HEADERS  += project.h \
     audioapp.h \
@@ -82,7 +85,10 @@ HEADERS  += project.h \
     importrawdialog.h \
     FileFormats.h \
     WaveTrack.h \
-    XMLTagHandler.h
+    XMLTagHandler.h \
+    DirManager.h \
+    XMLWriter.h \
+    WaveClip.h
 
 FORMS    += project.ui \
     importrawdialog.ui
