@@ -42,9 +42,9 @@ namespace RF {
         }
     }
 
-    void BackedPanel::resizeEvent(QResizeEvent *event) {
-        Q_UNUSED(event)
-
-        mResizeBacking = true;
-    }
+//    void BackedPanel::resizeEvent(QResizeEvent *event) {
+//        Q_UNUSED(event)
+//
+//        mResizeBacking = true;
+//    }
 }

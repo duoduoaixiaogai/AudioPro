@@ -15,7 +15,7 @@ namespace RF {
         void repairBitmap(QPaintDevice &dc, int x, int y, int width, int height);
         void displayBitmap(QPaintDevice &dc);
     protected:
-        void resizeEvent(QResizeEvent *event) Q_DECL_OVERLOAD;
+//        void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
     private:
         std::unique_ptr<QPixmap> mBacking;
         bool mResizeBacking{};

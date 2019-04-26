@@ -29,29 +29,29 @@ class /*AUDACITY_DLL_API*/ XMLWriter /* not final */ {
    XMLWriter();
    virtual ~XMLWriter();
 
-   virtual void StartTag(const QString &name);
-   virtual void EndTag(const QString &name);
-
-   virtual void WriteAttr(const QString &name, const QString &value);
-   virtual void WriteAttr(const QString &name, const QChar *value);
-
-   virtual void WriteAttr(const QString &name, int value);
-   virtual void WriteAttr(const QString &name, bool value);
-   virtual void WriteAttr(const QString &name, long value);
-   virtual void WriteAttr(const QString &name, long long value);
-   virtual void WriteAttr(const QString &name, size_t value);
-   virtual void WriteAttr(const QString &name, float value, int digits = -1);
-   virtual void WriteAttr(const QString &name, double value, int digits = -1);
-
-   virtual void WriteData(const QString &value);
-
-   virtual void WriteSubTree(const QString &value);
-
-   virtual void Write(const QString &data) = 0;
-
-   // Escape a string, replacing certain characters with their
-   // XML encoding, i.e. '<' becomes '&lt;'
-   QString XMLEsc(const QString & s);
+//   virtual void StartTag(const QString &name);
+//   virtual void EndTag(const QString &name);
+//
+//   virtual void WriteAttr(const QString &name, const QString &value);
+//   virtual void WriteAttr(const QString &name, const QChar *value);
+//
+//   virtual void WriteAttr(const QString &name, int value);
+//   virtual void WriteAttr(const QString &name, bool value);
+//   virtual void WriteAttr(const QString &name, long value);
+//   virtual void WriteAttr(const QString &name, long long value);
+//   virtual void WriteAttr(const QString &name, size_t value);
+//   virtual void WriteAttr(const QString &name, float value, int digits = -1);
+//   virtual void WriteAttr(const QString &name, double value, int digits = -1);
+//
+//   virtual void WriteData(const QString &value);
+//
+//   virtual void WriteSubTree(const QString &value);
+//
+//   virtual void Write(const QString &data) = 0;
+//
+//   // Escape a string, replacing certain characters with their
+//   // XML encoding, i.e. '<' becomes '&lt;'
+//   QString XMLEsc(const QString & s);
 
  protected:
 
@@ -90,19 +90,19 @@ class /*AUDACITY_DLL_API*/ XMLFileWriter final : private QFile, public XMLWriter
    /// Might throw.  If not, then create
    /// or modify the file at the output path.
    /// Composed of two steps, PreCommit() and PostCommit()
-   void Commit();
-
-   /// Does the part of Commit that might fail because of exhaustion of space
-   void PreCommit();
-
-   /// Does other parts of Commit that are not likely to fail for exhaustion
-   /// of space, but might for other reasons
-   void PostCommit();
-
-   /// Write to file. Might throw.
-   void Write(const QString &data) override;
-
-   QString GetBackupName() const { return mBackupName; }
+//   void Commit();
+//
+//   /// Does the part of Commit that might fail because of exhaustion of space
+//   void PreCommit();
+//
+//   /// Does other parts of Commit that are not likely to fail for exhaustion
+//   /// of space, but might for other reasons
+//   void PostCommit();
+//
+//   /// Write to file. Might throw.
+//   void Write(const QString &data) override;
+//
+//   QString GetBackupName() const { return mBackupName; }
 
  private:
 
@@ -133,12 +133,12 @@ class XMLStringWriter final : public QString, public XMLWriter {
 
  public:
 
-   XMLStringWriter(size_t initialSize = 0);
-   virtual ~XMLStringWriter();
-
-   void Write(const QString &data) override;
-
-   QString Get();
+//   XMLStringWriter(size_t initialSize = 0);
+//   virtual ~XMLStringWriter();
+//
+//   void Write(const QString &data) override;
+//
+//   QString Get();
 
  private:
 

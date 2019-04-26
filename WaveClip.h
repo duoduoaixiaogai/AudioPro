@@ -355,9 +355,9 @@ namespace RF {
         // XMLTagHandler callback methods for loading and saving
         //
 
-        bool HandleXMLTag(const QChar *tag, const QChar **attrs) override;
-        void HandleXMLEndTag(const QChar *tag) override;
-        XMLTagHandler *HandleXMLChild(const QChar *tag) override;
+//        bool HandleXMLTag(const QChar *tag, const QChar **attrs) override;
+//        void HandleXMLEndTag(const QChar *tag) override;
+//        XMLTagHandler *HandleXMLChild(const QChar *tag) override;
         void WriteXML(XMLWriter &xmlFile) const /* not override */;
 
         // AWD, Oct 2009: for pasting whitespace at the end of selection

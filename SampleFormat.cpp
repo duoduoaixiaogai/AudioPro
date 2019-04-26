@@ -34,91 +34,93 @@
 
 *//*******************************************************************/
 
-#include <wx/intl.h>
+//#include <wx/intl.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "SampleFormat.h"
-#include "Prefs.h"
-#include "Dither.h"
-#include "Internat.h"
-#include "prefs/QualityPrefs.h"
+//#include "Prefs.h"
+//#include "Dither.h"
+//#include "Internat.h"
+//#include "prefs/QualityPrefs.h"
 
-static DitherType gLowQualityDither = DitherType::none;
-static DitherType gHighQualityDither = DitherType::none;
-static Dither gDitherAlgorithm;
+namespace RF {
+//    static DitherType gLowQualityDither = DitherType::none;
+//    static DitherType gHighQualityDither = DitherType::none;
+//    static Dither gDitherAlgorithm;
 
-void InitDitherers()
-{
-   // Read dither preferences
-	// 阅读抖动首选项
-   gLowQualityDither = QualityPrefs::FastDitherChoice();
-   gHighQualityDither = QualityPrefs::BestDitherChoice();
-}
+    void InitDitherers()
+    {
+        // Read dither preferences
+        // 阅读抖动首选项
+//        gLowQualityDither = QualityPrefs::FastDitherChoice();
+//        gHighQualityDither = QualityPrefs::BestDitherChoice();
+    }
 
-const wxChar *GetSampleFormatStr(sampleFormat format)
-{
-   switch(format) {
-   case int16Sample:
-      /* i18n-hint: Audio data bit depth (precision): 16-bit integers */
-      return _("16-bit PCM");
-   case int24Sample:
-      /* i18n-hint: Audio data bit depth (precision): 24-bit integers */
-      return _("24-bit PCM");
-   case floatSample:
-      /* i18n-hint: Audio data bit depth (precision): 32-bit floating point */
-      return _("32-bit float");
-   }
-   return wxT("Unknown format"); // compiler food
-}
+//    const wxChar *GetSampleFormatStr(sampleFormat format)
+//    {
+//        switch(format) {
+//            case int16Sample:
+//                /* i18n-hint: Audio data bit depth (precision): 16-bit integers */
+//                return _("16-bit PCM");
+//            case int24Sample:
+//                /* i18n-hint: Audio data bit depth (precision): 24-bit integers */
+//                return _("24-bit PCM");
+//            case floatSample:
+//                /* i18n-hint: Audio data bit depth (precision): 32-bit floating point */
+//                return _("32-bit float");
+//        }
+//        return wxT("Unknown format"); // compiler food
+//    }
 
-// TODO: Risky?  Assumes 0.0f is represented by 0x00000000;
-void ClearSamples(samplePtr dst, sampleFormat format,
-                  size_t start, size_t len)
-{
-   auto size = SAMPLE_SIZE(format);
-   memset(dst + start*size, 0, len*size);
-}
+    // TODO: Risky?  Assumes 0.0f is represented by 0x00000000;
+    void ClearSamples(samplePtr dst, sampleFormat format,
+                      size_t start, size_t len)
+    {
+        auto size = SAMPLE_SIZE(format);
+        memset(dst + start*size, 0, len*size);
+    }
 
-void ReverseSamples(samplePtr dst, sampleFormat format,
-                  int start, int len)
-{
-   auto size = SAMPLE_SIZE(format);
-   samplePtr first = dst + start * size;
-   samplePtr last = dst + (start + len - 1) * size;
-   enum : size_t { fixedSize = SAMPLE_SIZE(floatSample) };
-   wxASSERT(static_cast<size_t>(size) <= fixedSize);
-   char temp[fixedSize];
-   while (first < last) {
-      memcpy(temp, first, size);
-      memcpy(first, last, size);
-      memcpy(last, temp, size);
-      first += size;
-      last -= size;
-   }
-}
+    void ReverseSamples(samplePtr dst, sampleFormat format,
+                        int start, int len)
+    {
+        auto size = SAMPLE_SIZE(format);
+        samplePtr first = dst + start * size;
+        samplePtr last = dst + (start + len - 1) * size;
+        enum : size_t { fixedSize = SAMPLE_SIZE(floatSample) };
+//        wxASSERT(static_cast<size_t>(size) <= fixedSize);
+        char temp[fixedSize];
+        while (first < last) {
+            memcpy(temp, first, size);
+            memcpy(first, last, size);
+            memcpy(last, temp, size);
+            first += size;
+            last -= size;
+        }
+    }
 
-void CopySamples(samplePtr src, sampleFormat srcFormat,
-                 samplePtr dst, sampleFormat dstFormat,
-                 unsigned int len,
-                 bool highQuality, /* = true */
-                 unsigned int srcStride /* = 1 */,
-                 unsigned int dstStride /* = 1 */)
-{
-   gDitherAlgorithm.Apply(
-      highQuality ? gHighQualityDither : gLowQualityDither,
-      src, srcFormat, dst, dstFormat, len, srcStride, dstStride);
-}
+    void CopySamples(samplePtr src, sampleFormat srcFormat,
+                     samplePtr dst, sampleFormat dstFormat,
+                     unsigned int len,
+                     bool highQuality, /* = true */
+                     unsigned int srcStride /* = 1 */,
+                     unsigned int dstStride /* = 1 */)
+    {
+//        gDitherAlgorithm.Apply(
+//                    highQuality ? gHighQualityDither : gLowQualityDither,
+//                    src, srcFormat, dst, dstFormat, len, srcStride, dstStride);
+    }
 
-void CopySamplesNoDither(samplePtr src, sampleFormat srcFormat,
-                 samplePtr dst, sampleFormat dstFormat,
-                 unsigned int len,
-                 unsigned int srcStride /* = 1 */,
-                 unsigned int dstStride /* = 1 */)
-{
-   gDitherAlgorithm.Apply(
-      DitherType::none,
-      src, srcFormat, dst, dstFormat, len, srcStride, dstStride);
+    void CopySamplesNoDither(samplePtr src, sampleFormat srcFormat,
+                             samplePtr dst, sampleFormat dstFormat,
+                             unsigned int len,
+                             unsigned int srcStride /* = 1 */,
+                             unsigned int dstStride /* = 1 */)
+    {
+//        gDitherAlgorithm.Apply(
+//                    DitherType::none,
+//                    src, srcFormat, dst, dstFormat, len, srcStride, dstStride);
+    }
 }

@@ -82,16 +82,16 @@ int sf_num_encodings()
    return count;
 }
 
-QString sf_encoding_index_name(int i)
-{
-   SF_FORMAT_INFO	format_info ;
-
-   memset(&format_info, 0, sizeof(format_info));
-   format_info.format = i;
-   sf_command (NULL, SFC_GET_FORMAT_SUBTYPE,
-               &format_info, sizeof (format_info));
-   return sf_normalize_name(format_info.name);
-}
+//QString sf_encoding_index_name(int i)
+//{
+//   SF_FORMAT_INFO	format_info ;
+//
+//   memset(&format_info, 0, sizeof(format_info));
+//   format_info.format = i;
+//   sf_command (NULL, SFC_GET_FORMAT_SUBTYPE,
+//               &format_info, sizeof (format_info));
+//   return sf_normalize_name(format_info.name);
+//}
 
 unsigned int sf_encoding_index_to_subtype(int i)
 {

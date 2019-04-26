@@ -153,5 +153,5 @@ namespace RF {
     using FloatBuffers = ArraysOf<float>;
     using Doubles = ArrayOf<double>;
 
-#endif
 }
+#endif

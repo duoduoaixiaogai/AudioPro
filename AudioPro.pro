@@ -48,7 +48,8 @@ SOURCES += main.cpp\
     XMLTagHandler.cpp \
     DirManager.cpp \
     XMLWriter.cpp \
-    WaveClip.cpp
+    WaveClip.cpp \
+    ViewInfo.cpp
 
 HEADERS  += project.h \
     audioapp.h \
@@ -88,7 +89,8 @@ HEADERS  += project.h \
     XMLTagHandler.h \
     DirManager.h \
     XMLWriter.h \
-    WaveClip.h
+    WaveClip.h \
+    ViewInfo.h
 
 FORMS    += project.ui \
     importrawdialog.ui

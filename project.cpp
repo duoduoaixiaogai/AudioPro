@@ -47,12 +47,12 @@ namespace RF {
     }
 
     AudioProject::AudioProject(QWidget *parent, int id, const QPoint &pos, const QSize &size) :
-        QMainWindow(parent), mCommandManager(std::make_unique<CommandManager>),
+        QMainWindow(parent), /*(mCommandManager(std::make_unique<CommandManager>),*/
         ui(new Ui::AudioProject)
     {
         ui->setupUi(this);
 
-        mTracks = TrackList::create();
+//        mTracks = TrackList::create();
 
         //QVBoxLayout *vLayout = new QVBoxLayout;
         //setLayout(vLayout);
@@ -110,7 +110,7 @@ namespace RF {
         if (newTracks.size() <= 0)
               return;
 
-        addImportedTracks(fileName, std::move(newTracks));
+//        addImportedTracks(fileName, std::move(newTracks));
 
     }
 

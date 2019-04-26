@@ -322,7 +322,8 @@ private:
 #ifdef _DEBUG
 #ifdef _MSC_VER
 #undef THIS_FILE
-static char*THIS_FILE = __FILE__;
+//static char*THIS_FILE = __FILE__;
+static char*THIS_FILE = const_cast<char*>(__FILE__);
 #define new new(_NORMAL_BLOCK, THIS_FILE, __LINE__)
 #endif
 #endif
@@ -502,38 +503,38 @@ struct IteratorRange : public std::pair<Iterator, Iterator> {
 
    // Like std::accumulate, but the iterators implied, and with another
    // unary operation on the iterator value, pre-composed
-   template<
-      typename R,
-      typename Binary = std::plus< R >,
-      typename Unary = identity< decltype( *std::declval<Iterator>() ) >
-   >
-   R accumulate(
-      R init,
-      Binary binary_op = {},
-      Unary unary_op = {}
-   ) const
-   {
-      R result = init;
-      for (auto&& v : *this)
-         result = binary_op(result, unary_op(v));
-      return result;
-   }
+//   template<
+//      typename R,
+//      typename Binary = std::plus< R >,
+//      typename Unary = identity< decltype( *std::declval<Iterator>() ) >
+//   >
+//   R accumulate(
+//      R init,
+//      Binary binary_op = {},
+//      Unary unary_op = {}
+//   ) const
+//   {
+//      R result = init;
+//      for (auto&& v : *this)
+//         result = binary_op(result, unary_op(v));
+//      return result;
+//   }
 
    // An overload making it more convenient to use with pointers to member
    // functions
-   template<
-      typename R,
-      typename Binary = std::plus< R >,
-      typename R2, typename C
-   >
-   R accumulate(
-      R init,
-      Binary binary_op,
-      R2 (C :: * pmf) () const
-   ) const
-   {
-      return this->accumulate( init, binary_op, std::mem_fn( pmf ) );
-   }
+//   template<
+//      typename R,
+//      typename Binary = std::plus< R >,
+//      typename R2, typename C
+//   >
+//   R accumulate(
+//      R init,
+//      Binary binary_op,
+//      R2 (C :: * pmf) () const
+//   ) const
+//   {
+//      return this->accumulate( init, binary_op, std::mem_fn( pmf ) );
+//   }
 
    // Some accumulations frequent enough to be worth abbreviation:
    template<
