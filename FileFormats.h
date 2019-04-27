@@ -1,14 +1,4 @@
-﻿/**********************************************************************
-
-  Audacity: A Digital Audio Editor
-
-  FileFormats.h
-
-  Dominic Mazzoni
-
-**********************************************************************/
-
-#ifndef FILEFORMATS_H
+﻿#ifndef FILEFORMATS_H
 #define FILEFORMATS_H
 
 //;#include <wx/list.h>

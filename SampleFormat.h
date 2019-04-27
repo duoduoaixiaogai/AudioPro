@@ -1,17 +1,7 @@
-﻿/**********************************************************************
-
-  Audacity: A Digital Audio Editor
-
-  SampleFormat.h
-
-  Dominic Mazzoni
-
-**********************************************************************/
-
-#ifndef SAMPLEFORMAT_H
+﻿#ifndef SAMPLEFORMAT_H
 #define SAMPLEFORMAT_H
 
-#include "MemoryX.h"
+#include "memoryx.h"
 
 #include "types.h"
 

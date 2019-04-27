@@ -49,7 +49,13 @@ SOURCES += main.cpp\
     DirManager.cpp \
     XMLWriter.cpp \
     WaveClip.cpp \
-    ViewInfo.cpp
+    ViewInfo.cpp \
+    Sequence.cpp \
+    Envelope.cpp \
+    BlockFile.cpp \
+    SampleFormat.cpp \
+    SimpleBlockFile.cpp \
+    CommonTrackPanelCell.cpp
 
 HEADERS  += project.h \
     audioapp.h \
@@ -62,7 +68,6 @@ HEADERS  += project.h \
     loadeffects.h \
     effect.h \
     plugininterface.h \
-    amplify.h \
     shuttle.h \
     noisereduction.h \
     memoryx.h \
@@ -90,7 +95,13 @@ HEADERS  += project.h \
     DirManager.h \
     XMLWriter.h \
     WaveClip.h \
-    ViewInfo.h
+    ViewInfo.h \
+    Sequence.h \
+    Envelope.h \
+    BlockFile.h \
+    SampleFormat.h \
+    SimpleBlockFile.h \
+    amplify.h
 
 FORMS    += project.ui \
     importrawdialog.ui
