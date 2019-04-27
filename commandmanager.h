@@ -4,8 +4,8 @@
 namespace RF {
     class CommandManager {
     public:
-        CommandManager();
-        virtual ~CommandManager();
+        CommandManager() {}
+        virtual ~CommandManager() {}
     };
 }
 

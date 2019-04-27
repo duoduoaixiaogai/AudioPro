@@ -6,11 +6,11 @@
 
 class QWidget;
 class QString;
-class TrackFactory;
 
 namespace RF {
 
     class WaveTrack;
+    class TrackFactory;
 
     using NewChannelGroup = std::vector<std::unique_ptr<WaveTrack> >;
     using TrackHolders = std::vector<NewChannelGroup>;

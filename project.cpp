@@ -1,15 +1,12 @@
 ﻿#include "project.h"
 #include "ui_project.h"
-#include <memoryx.h>
-#include "panelwrapper.h"
-#include "trackpanel.h"
 #include "commandmanager.h"
 #include "importraw.h"
+#include "track.h"
+#include "WaveTrack.h"
 
 #include <QVBoxLayout>
 #include <QFileDialog>
-//#include <QMenu>
-//#include <QMenuBar>
 
 namespace RF {
     AProjectArray gAudioProjects;
@@ -86,11 +83,11 @@ namespace RF {
         connect(rawAct, &QAction::trigger, this, &AudioProject::fileClicked);
     }
 
-    void AudioProject::menuClicked(bool) {
+    void AudioProject::menuClicked() {
 
     }
 
-    void AudioProject::fileClicked(bool) {
+    void AudioProject::fileClicked() {
         onImportRaw();
     }
 

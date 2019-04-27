@@ -1,7 +1,7 @@
 ﻿#ifndef COMMONTRACKPANELCELL_H
 #define COMMONTRACKPANELCELL_H
 
-#include "TrackPanelCell.h"
+#include "trackpanelcell.h"
 
 namespace RF {
     class Track;

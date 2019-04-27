@@ -3,12 +3,13 @@
 
 #include "commontrackpanelcell.h"
 #include "SampleFormat.h"
-#include "XMLTagHandler.h"
 #include "DirManager.h"
 #include "ViewInfo.h"
-#include "WaveTrack.h"
+//#include "WaveTrack.h"
 
 namespace RF {
+
+    class WaveTrack;
 
     using ListOfTracks = std::list< std::shared_ptr< Track > >;
 
@@ -16,6 +17,10 @@ namespace RF {
     {
     public:
         Track(const std::shared_ptr<DirManager> &mDirManager);
+        virtual ~ Track();
+    protected:
+        mutable std::shared_ptr<DirManager> mDirManager;
+        double              mOffset;
     };
 
     class AudioTrack : public Track

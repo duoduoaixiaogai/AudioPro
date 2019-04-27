@@ -1,7 +1,7 @@
 ﻿#ifndef PROJECT_H
 #define PROJECT_H
 
-#include "track.h"
+#include "types.h"
 
 #include <QMainWindow>
 
@@ -17,19 +17,11 @@ namespace Ui {
 
 namespace RF {
 
-    class AudioProject;
     class TrackPanel;
     class CommandManager;
     class TrackFactory;
+    class TrackList;
 
-    AudioProject* GetActiveProject();
-    AudioProject* createNewAudioProject();
-
-
-    using AProjectHolder = std::shared_ptr<AudioProject>;
-    using AProjectArray = QVector<AProjectHolder>;
-
-    extern AProjectArray gAudioProjects;
 
     class AudioProject : public QMainWindow
     {
@@ -53,8 +45,8 @@ namespace RF {
         void onImportRaw();
 
     private slots:
-        void menuClicked(bool);
-        void fileClicked(bool);
+        void menuClicked();
+        void fileClicked();
     private:
         Ui::AudioProject *ui;
 
@@ -66,6 +58,15 @@ namespace RF {
         sampleFormat mDefaultFormat;
         double mRate;
     };
+
+    AudioProject* GetActiveProject();
+    AudioProject* createNewAudioProject();
+
+
+    using AProjectHolder = std::shared_ptr<AudioProject>;
+    using AProjectArray = std::vector<AProjectHolder>;
+
+    extern AProjectArray gAudioProjects;
 }
 
 #endif // PROJECT_H
