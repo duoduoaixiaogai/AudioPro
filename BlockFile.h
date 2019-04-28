@@ -13,9 +13,12 @@ namespace RF {
                                  size_t start, size_t len, bool mayThrow = true)
                const = 0;
          virtual void SaveXML(XMLWriter &xmlFile) = 0;
+         static unsigned long gBlockFileDestructionCount;
      protected:
          size_t mLen;
      };
+
+     using BlockFilePtr = std::shared_ptr<BlockFile>;
 }
 
 #endif

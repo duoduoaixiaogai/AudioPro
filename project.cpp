@@ -76,11 +76,11 @@ namespace RF {
         QAction *rawAct = importMenu->addAction(QString("Raw Data"));
 
         // EffectMenu
-        connect(amplifyAct, &QAction::triggered, this, &AudioProject::menuClicked);
-        connect(noiseRedAct, &QAction::triggered, this, &AudioProject::menuClicked);
+        connect(amplifyAct, SIGNAL(triggered()), this, SLOT(menuClicked()));
+        connect(noiseRedAct, SIGNAL(triggered()), this, SLOT(menuClicked()));
 
         // FileMenu
-        connect(rawAct, &QAction::trigger, this, &AudioProject::fileClicked);
+        connect(rawAct, SIGNAL(triggered()), this, SLOT(fileClicked()));
     }
 
     void AudioProject::menuClicked() {

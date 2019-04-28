@@ -25,6 +25,13 @@ namespace RF {
         virtual bool supportsRealtime() = 0;
         virtual bool supportsAutomation() = 0;
     };
+
+    class EffectClientInterface  : public EffectDefinitionInterface {
+    public:
+        virtual ~EffectClientInterface() {}
+
+        virtual bool LoadFactoryDefaults() = 0;
+    };
 }
 
 #endif // EFFECTINTERFACE_H

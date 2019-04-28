@@ -7,6 +7,8 @@
 #include "ViewInfo.h"
 //#include "WaveTrack.h"
 
+#include <QSize>
+
 namespace RF {
 
     class WaveTrack;
@@ -18,9 +20,25 @@ namespace RF {
     public:
         Track(const std::shared_ptr<DirManager> &mDirManager);
         virtual ~ Track();
+        mutable QSize vrulerSize;
+        enum ChannelType
+        {
+            LeftChannel = 0,
+            RightChannel = 1,
+            MonoChannel = 2
+        };
+        enum : unsigned { DefaultHeight = 150 };
     protected:
         mutable std::shared_ptr<DirManager> mDirManager;
         double              mOffset;
+        bool           mLinked;
+        int            mY;
+        int            mHeight;
+        int            mIndex;
+        bool           mMinimized;
+        ChannelType         mChannel;
+    private:
+        bool           mSelected;
     };
 
     class AudioTrack : public Track

@@ -237,4 +237,25 @@ namespace RF {
           --nn;
        }
     }
+
+    std::pair<int, int> Envelope::EqualRange( double when, double sampleDur ) const
+    {
+       // Find range of envelope points matching the given time coordinate
+       // (within an interval of length sampleDur)
+       // by binary search; if empty, it still indicates where to
+       // insert.
+       const auto tolerance = sampleDur / 2;
+       auto begin = mEnv.begin();
+       auto end = mEnv.end();
+       auto first = std::lower_bound(
+          begin, end,
+          EnvPoint{ when - tolerance, 0.0 },
+          []( const EnvPoint &point1, const EnvPoint &point2 )
+             { return point1.GetT() < point2.GetT(); }
+       );
+       auto after = first;
+       while ( after != end && after->GetT() <= when + tolerance )
+          ++after;
+       return { first - begin, after - begin };
+    }
 }

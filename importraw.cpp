@@ -45,7 +45,7 @@ namespace RF {
             numChannels = std::max(1u, numChannels);
 
             ImportRawDialog dlog(encoding, numChannels, static_cast<int>(offset), rate, parent);
-            dlog.show();
+            dlog.exec();
             if (!dlog.result()) {
                 return;
             }

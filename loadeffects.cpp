@@ -106,7 +106,7 @@ namespace RF {
        auto effect = instantiate(path);
        if (effect) {
            if (callback) {
-               //callback(this, effect.get());
+               callback(this, effect.get());
            }
            return 1;
        }
