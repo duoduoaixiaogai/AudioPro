@@ -28,6 +28,7 @@ namespace RF{
                            size_t sampleLen,
                            sampleFormat format,
                            bool allowDeferredWrite = false);
+        bool AssignFile(QFileInfo &filename, const QString &value, bool check);
     private:
         struct BalanceInfo
         {
@@ -41,6 +42,8 @@ namespace RF{
         unsigned long mLastBlockFileDestructionCount { 0 };
         BlockHash mBlockFileHash;
         void BalanceInfoDel(const QString&);
+        int BalanceMidAdd(int, int);
+        QFileInfo MakeBlockFilePath(const QString &value);
     };
 }
 
