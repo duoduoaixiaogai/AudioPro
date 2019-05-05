@@ -1,5 +1,7 @@
 ﻿#include "DirManager.h"
-#include "BlockFile.h"
+#include "SimpleBlockFile.h"
+
+#include <QDir>
 
 namespace RF {
     BlockFilePtr DirManager::NewSimpleBlockFile(
@@ -7,15 +9,26 @@ namespace RF {
             sampleFormat format,
             bool allowDeferredWrite)
     {
-        wxFileNameWrapper filePath{ MakeBlockFileName() };
-        const wxString fileName{ filePath.GetName() };
+        QFileInfo filePath{ MakeBlockFileName() };
+        const QString fileName{ filePath.baseName() };
 
         auto newBlockFile = make_blockfile<SimpleBlockFile>
                 (std::move(filePath), sampleData, sampleLen, format, allowDeferredWrite);
 
-        mBlockFileHash[fileName] = newBlockFile;
+        mBlockFileHash[fileName.toStdString()] = newBlockFile;
 
         return newBlockFile;
+    }
+
+    static inline unsigned int hexchar_to_int(unsigned int x)
+    {
+        if(x<48U)return 0;
+        if(x<58U)return x-48U;
+        if(x<65U)return 10U;
+        if(x<71U)return x-55U;
+        if(x<97U)return 10U;
+        if(x<103U)return x-87U;
+        return 15U;
     }
 
     void DirManager::BalanceInfoDel(const QString &file)
@@ -28,14 +41,14 @@ namespace RF {
         auto &dirTopPool = balanceInfo.dirTopPool;
         auto &dirTopFull = balanceInfo.dirTopFull;
 
-        const wxChar *s=file;
-        if(s[0]==wxT('e')){
+        const QChar *s = file.unicode();
+        if(s[0]== QChar('e')){
             // this is one of the modern two-deep managed files
 
-            unsigned int topnum = (hexchar_to_int(s[1]) << 4) |
-                    hexchar_to_int(s[2]);
-            unsigned int midnum = (hexchar_to_int(s[3]) << 4) |
-                    hexchar_to_int(s[4]);
+            unsigned int topnum = (hexchar_to_int(s[1].unicode()) << 4) |
+                    hexchar_to_int(s[2].unicode());
+            unsigned int midnum = (hexchar_to_int(s[3].unicode()) << 4) |
+                    hexchar_to_int(s[4].unicode());
             unsigned int midkey=topnum<<8|midnum;
 
             // look for midkey in the mid pool
@@ -54,13 +67,13 @@ namespace RF {
                     dirMidPool.erase(midkey);
 
                     // DELETE the actual directory
-                    wxString dir=(projFull != wxT("")? projFull: mytemp);
-                    dir += wxFILE_SEP_PATH;
-                    dir += file.Mid(0,3);
-                    dir += wxFILE_SEP_PATH;
-                    dir += wxT("d");
-                    dir += file.Mid(3,2);
-                    wxFileName::Rmdir(dir);
+                    QString dir=(projFull != QString("")? projFull: mytemp);
+                    dir += QString('\\');
+                    dir += file.mid(0,3);
+                    dir += QString('\\');
+                    dir += QString("d");
+                    dir += file.mid(3,2);
+                    deleteDirectory(dir);
 
                     // also need to remove from toplevel
                     if(dirTopFull.find(topnum) != dirTopFull.end()){
@@ -74,10 +87,10 @@ namespace RF {
                         if(--dirTopPool[topnum]<1){
                             // do *not* erase the hash entry from dirTopPool
                             // *do* DELETE the actual directory
-                            dir=(projFull != wxT("")? projFull: mytemp);
-                            dir += wxFILE_SEP_PATH;
-                            dir += file.Mid(0,3);
-                            wxFileName::Rmdir(dir);
+                            dir=(projFull != QString("")? projFull: mytemp);
+                            dir += QString('\\');
+                            dir += file.mid(0,3);
+                            deleteDirectory(dir);
                         }
                     }
                 }
@@ -100,7 +113,7 @@ namespace RF {
                 if (!ptr) {
                     auto name = it->first;
                     mBlockFileHash.erase( it++ );
-                    BalanceInfoDel( name );
+                    BalanceInfoDel( name.c_str() );
                 }
                 else
                     ++it;
@@ -119,8 +132,8 @@ namespace RF {
         auto &dirTopPool = balanceInfo.dirTopPool;
         auto &dirTopFull = balanceInfo.dirTopFull;
 
-        wxFileNameWrapper ret;
-        wxString baseFileName;
+        QFileInfo ret;
+        QString baseFileName;
 
         unsigned int filenum,midnum,topnum,midkey;
 
@@ -204,7 +217,7 @@ namespace RF {
 
             }
 
-            baseFileName.Printf(wxT("e%02x%02x%03x"),topnum,midnum,filenum);
+            baseFileName = QString("e%1%2%3").arg(topnum, 2).arg(midnum, 2).arg(filenum, 3);
 
             if (!ContainsBlockFile(baseFileName)) {
                 // not in the hash, good.
@@ -230,94 +243,158 @@ namespace RF {
 
     int DirManager::BalanceMidAdd(int topnum, int midkey)
     {
-       // enter the midlevel directory if it doesn't exist
+        // enter the midlevel directory if it doesn't exist
 
-       auto &balanceInfo = GetBalanceInfo();
-       auto &dirMidPool = balanceInfo.dirMidPool;
-       auto &dirMidFull = balanceInfo.dirMidFull;
-       auto &dirTopPool = balanceInfo.dirTopPool;
-       auto &dirTopFull = balanceInfo.dirTopFull;
+        auto &balanceInfo = GetBalanceInfo();
+        auto &dirMidPool = balanceInfo.dirMidPool;
+        auto &dirMidFull = balanceInfo.dirMidFull;
+        auto &dirTopPool = balanceInfo.dirTopPool;
+        auto &dirTopFull = balanceInfo.dirTopFull;
 
-       if(dirMidPool.find(midkey) == dirMidPool.end() &&
-             dirMidFull.find(midkey) == dirMidFull.end()){
-          dirMidPool[midkey]=0;
+        if(dirMidPool.find(midkey) == dirMidPool.end() &&
+                dirMidFull.find(midkey) == dirMidFull.end()){
+            dirMidPool[midkey]=0;
 
-          // increment toplevel directory fill
-          dirTopPool[topnum]++;
-          if(dirTopPool[topnum]>=256){
-             // this toplevel is now full; move it to the full hash
-             dirTopPool.erase(topnum);
-             dirTopFull[topnum]=256;
-          }
-          return 1;
-       }
-       return 0;
+            // increment toplevel directory fill
+            dirTopPool[topnum]++;
+            if(dirTopPool[topnum]>=256){
+                // this toplevel is now full; move it to the full hash
+                dirTopPool.erase(topnum);
+                dirTopFull[topnum]=256;
+            }
+            return 1;
+        }
+        return 0;
     }
 
     bool DirManager::AssignFile(QFileInfo &fileName,
                                 const QString &value,
                                 bool diskcheck)
     {
-       QFileInfo dir{ MakeBlockFilePath(value) };
+        QDir dir{ MakeBlockFilePath(value) };
 
-       if(diskcheck){
-          // verify that there's no possible collision on disk.  If there
-          // is, log the problem and return FALSE so that MakeBlockFileName
-          // can try again
+        if(diskcheck){
+            // verify that there's no possible collision on disk.  If there
+            // is, log the problem and return FALSE so that MakeBlockFileName
+            // can try again
 
-          wxDir checkit(dir.GetFullPath());
-          if(!checkit.IsOpened()) return FALSE;
+            QDir checkit(dir.absolutePath());
+//            if(!checkit.IsOpened()) return FALSE;
 
-          // this code is only valid if 'value' has no extention; that
-          // means, effectively, AssignFile may be called with 'diskcheck'
-          // set to true only if called from MakeFileBlockName().
+            // this code is only valid if 'value' has no extention; that
+            // means, effectively, AssignFile may be called with 'diskcheck'
+            // set to true only if called from MakeFileBlockName().
 
-          wxString filespec;
-          filespec.Printf(wxT("%s.*"),value);
-          if(checkit.HasFiles(filespec)){
-             // collision with on-disk state!
-             wxString collision;
-             checkit.GetFirst(&collision,filespec);
+            QString filespec = QString("%1.*").arg(value);
+//            filespec.Printf(wxT("%s.*"),value);
+           QStringList files = checkit.entryList(QStringList(filespec));
+            if(!files.isEmpty()){
+                // collision with on-disk state!
+//                wxString collision;
+//                checkit.GetFirst(&collision,filespec);
+//
+//                wxLogWarning(_("Audacity found an orphan block file: %s. \nPlease consider saving and reloading the project to perform a complete project check."),
+//                             collision);
 
-             wxLogWarning(_("Audacity found an orphan block file: %s. \nPlease consider saving and reloading the project to perform a complete project check."),
-                          collision);
-
-             return FALSE;
-          }
-       }
-       fileName.Assign(dir.GetFullPath(),value);
-       return fileName.IsOk();
+                return false;
+            }
+        }
+//        fileName.Assign(dir.GetFullPath(),value);
+//        return fileName.IsOk();
+        fileName.setFile(value);
+        return true;
     }
 
-    QFileInfo DirManager::MakeBlockFilePath(const QString &value) {
+    QDir DirManager::MakeBlockFilePath(const QString &value) {
+        QDir dir(GetDataFilesDir());
 
-       QFileInfo dir;
-       dir.AssignDir(GetDataFilesDir());
+        if(value.at(0)==QChar('d')){
+            // this file is located in a subdirectory tree
+            int location=value.indexOf(('b'));
+            QString subdir=value.mid(0,location);
+            dir.setPath(subdir);
 
-       if(value.GetChar(0)==wxT('d')){
-          // this file is located in a subdirectory tree
-          int location=value.Find(wxT('b'));
-          wxString subdir=value.Mid(0,location);
-          dir.AppendDir(subdir);
+            if(!dir.exists())
+                dir.mkpath(dir.path());
+        }
 
-          if(!dir.DirExists())
-             dir.Mkdir();
-       }
+        if(value.at(0)==QChar('e')){
+            // this file is located in a NEW style two-deep subdirectory tree
+            QString topdir=value.mid(0,3);
+            QString middir=QString("d");
+            middir.append(value.mid(3,2));
 
-       if(value.GetChar(0)==wxT('e')){
-          // this file is located in a NEW style two-deep subdirectory tree
-          wxString topdir=value.Mid(0,3);
-          wxString middir=wxT("d");
-          middir.Append(value.Mid(3,2));
+            QString subPath = topdir + '/' + middir;
+            dir.setPath(subPath);
 
-          dir.AppendDir(topdir);
-          dir.AppendDir(middir);
+            if(!dir.exists() && !dir.mkpath(dir.path()))
+            { // need braces to avoid compiler warning about ambiguous else, see the macro
+//                wxLogSysError(_("mkdir in DirManager::MakeBlockFilePath failed."));
+            }
+        }
+        return dir;
+    }
 
-          if(!dir.DirExists() && !dir.Mkdir(0777,wxPATH_MKDIR_FULL))
-          { // need braces to avoid compiler warning about ambiguous else, see the macro
-             wxLogSysError(_("mkdir in DirManager::MakeBlockFilePath failed."));
-          }
-       }
-       return dir;
+    bool DirManager::ContainsBlockFile(const QString &filepath) const
+    {
+        // check what the hash returns in case the blockfile is from a different project
+        BlockHash::const_iterator it = mBlockFileHash.find(filepath.toStdString());
+        return it != mBlockFileHash.end() &&
+                BlockFilePtr{ it->second.lock() };
+    }
+
+    void DirManager::BalanceFileAdd(int midkey)
+    {
+        auto &balanceInfo = GetBalanceInfo();
+        auto &dirMidPool = balanceInfo.dirMidPool;
+        auto &dirMidFull = balanceInfo.dirMidFull;
+
+        // increment the midlevel directory usage information
+        if(dirMidPool.find(midkey) != dirMidPool.end()){
+            dirMidPool[midkey]++;
+            if(dirMidPool[midkey]>=256){
+                // this middir is now full; move it to the full hash
+                dirMidPool.erase(midkey);
+                dirMidFull[midkey]=256;
+            }
+        }else{
+            // this case only triggers in absurdly large projects; we still
+            // need to track directory fill even if we're over 256/256/256
+            dirMidPool[midkey]++;
+        }
+    }
+
+    bool DirManager::deleteDirectory(const QString &path)
+    {
+        if (path.isEmpty())
+        {
+            return false;
+        }
+
+        QDir dir(path);
+        if(!dir.exists())
+        {
+            return true;
+        }
+
+        dir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+        QFileInfoList fileList = dir.entryInfoList();
+        foreach (QFileInfo fi, fileList)
+        {
+            if (fi.isFile())
+            {
+                fi.dir().remove(fi.fileName());
+            }
+            else
+            {
+                deleteDirectory(fi.absoluteFilePath());
+            }
+        }
+        return dir.rmpath(dir.absolutePath());
+    }
+
+    QString DirManager::GetDataFilesDir() const
+    {
+        return projFull != QString("")? projFull: mytemp;
     }
 }

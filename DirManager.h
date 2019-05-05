@@ -14,7 +14,7 @@ namespace RF{
     class BlockFile;
     using BlockFilePtr = std::shared_ptr<BlockFile>;
     using DirHash = std::unordered_map<int, int>;
-    using BlockHash = std::unordered_map< QString, std::weak_ptr<BlockFile> >;
+    using BlockHash = std::unordered_map< std::string, std::weak_ptr<BlockFile> >;
 
     class DirManager final : public XMLTagHandler {
     public:
@@ -29,6 +29,8 @@ namespace RF{
                            sampleFormat format,
                            bool allowDeferredWrite = false);
         bool AssignFile(QFileInfo &filename, const QString &value, bool check);
+        bool ContainsBlockFile(const QString &filepath) const;
+        QString GetDataFilesDir() const;
     private:
         struct BalanceInfo
         {
@@ -37,13 +39,17 @@ namespace RF{
             DirHash   dirMidPool;    // available two-level dirs
             DirHash   dirMidFull;    // full two-level dirs
         } mBalanceInfo;
+        QString projFull;
+        QString mytemp;
         QFileInfo MakeBlockFileName();
         BalanceInfo &GetBalanceInfo();
         unsigned long mLastBlockFileDestructionCount { 0 };
         BlockHash mBlockFileHash;
         void BalanceInfoDel(const QString&);
         int BalanceMidAdd(int, int);
-        QFileInfo MakeBlockFilePath(const QString &value);
+        QDir MakeBlockFilePath(const QString &value);
+        void BalanceFileAdd(int);
+        bool deleteDirectory(const QString &path);
     };
 }
 
