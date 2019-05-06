@@ -22,8 +22,10 @@ namespace RF {
 
     class Envelope final : public XMLTagHandler {
     public:
+        Envelope(bool exponential, double minValue, double maxValue, double defaultValue);
         void SetOffset(double newOffset);
         void SetTrackLen( double trackLen, double sampleDur = 0.0 );
+        double ClampValue(double value) { return std::max(mMinValue, std::min(mMaxValue, value)); }
     private:
         double GetValueRelative(double t, bool leftLimit = false) const;
         void GetValuesRelative
@@ -41,6 +43,7 @@ namespace RF {
         mutable int mSearchGuess { -2 };
         bool mDB;
         double mTrackLen { 0.0 };
+        double mMinValue, mMaxValue;
     };
 }
 

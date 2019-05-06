@@ -2,6 +2,8 @@
 #define PROJECT_H
 
 #include "types.h"
+#include "DirManager.h"
+#include "ViewInfo.h"
 
 #include <QMainWindow>
 
@@ -40,6 +42,7 @@ namespace RF {
         }
         sampleFormat GetDefaultFormat() { return mDefaultFormat; }
         double GetRate() const { return mRate; }
+        ViewInfo mViewInfo;
     private:
         void createMenus();
         void onImportRaw();
@@ -57,6 +60,7 @@ namespace RF {
         std::unique_ptr<TrackFactory> mTrackFactory{};
         sampleFormat mDefaultFormat;
         double mRate;
+        std::shared_ptr<DirManager> mDirManager;
     };
 
     AudioProject* GetActiveProject();

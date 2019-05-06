@@ -7,12 +7,12 @@ namespace RF {
     WaveClip::WaveClip(const std::shared_ptr<DirManager> &projDirManager,
                        sampleFormat format, int rate, int colourIndex)
     {
-//       mRate = rate;
-//       mColourIndex = colourIndex;
-//       mSequence = std::make_unique<Sequence>(projDirManager, format);
-//
-//       mEnvelope = std::make_unique<Envelope>(true, 1e-7, 2.0, 1.0);
-//
+       mRate = rate;
+       mColourIndex = colourIndex;
+       mSequence = std::make_unique<Sequence>(projDirManager, format);
+
+       mEnvelope = std::make_unique<Envelope>(true, 1e-7, 2.0, 1.0);
+
 //       mWaveCache = std::make_unique<WaveCache>();
 //       mSpecCache = std::make_unique<SpecCache>();
 //       mSpecPxCache = std::make_unique<SpecPxCache>(1);

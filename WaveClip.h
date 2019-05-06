@@ -36,6 +36,7 @@ namespace RF {
         int mDirty { 0 };
         size_t        mAppendBufferLen { 0 };
         int mRate;
+        int mColourIndex;
     };
 
     using WaveClipHolder = std::shared_ptr< WaveClip >;

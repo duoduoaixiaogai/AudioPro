@@ -31,6 +31,7 @@ namespace RF{
         bool AssignFile(QFileInfo &filename, const QString &value, bool check);
         bool ContainsBlockFile(const QString &filepath) const;
         QString GetDataFilesDir() const;
+        static void SetTempDir(const QString &_temp) { globaltemp = _temp; }
     private:
         struct BalanceInfo
         {
@@ -41,6 +42,7 @@ namespace RF{
         } mBalanceInfo;
         QString projFull;
         QString mytemp;
+        static QString globaltemp;
         QFileInfo MakeBlockFileName();
         BalanceInfo &GetBalanceInfo();
         unsigned long mLastBlockFileDestructionCount { 0 };

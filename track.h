@@ -71,6 +71,7 @@ namespace RF {
 
         const std::shared_ptr<DirManager> mDirManager;
         const ZoomInfo *const mZoomInfo;
+        friend class AudioProject;
 
     public:
         // These methods are defined in WaveTrack.cpp, NoteTrack.cpp,

@@ -17,4 +17,11 @@ namespace RF {
           highQuality ? gHighQualityDither : gLowQualityDither,
           src, srcFormat, dst, dstFormat, len, srcStride, dstStride);
     }
+
+    void ClearSamples(samplePtr dst, sampleFormat format,
+                      size_t start, size_t len)
+    {
+       auto size = SAMPLE_SIZE(format);
+       memset(dst + start*size, 0, len*size);
+    }
 }

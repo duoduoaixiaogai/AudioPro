@@ -62,10 +62,10 @@ namespace RF {
 
         static size_t    sMaxDiskBlockSize;
 
-        size_t   mMinSamples;
-        size_t   mMaxSamples;
         std::shared_ptr<DirManager> mDirManager;
         sampleFormat  mSampleFormat;
+        size_t   mMinSamples;
+        size_t   mMaxSamples;
 
         BlockArray    mBlock;
         sampleCount   mNumSamples{ 0 };

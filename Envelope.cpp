@@ -1,6 +1,15 @@
 ﻿#include "Envelope.h"
 
 namespace RF {
+
+    Envelope::Envelope(bool exponential, double minValue, double maxValue, double defaultValue)
+       : mDB(exponential)
+       , mMinValue(minValue)
+       , mMaxValue(maxValue)
+       , mDefaultValue { ClampValue(defaultValue) }
+    {
+    }
+
     void Envelope::SetOffset(double newOffset)
     {
        mOffset = newOffset;

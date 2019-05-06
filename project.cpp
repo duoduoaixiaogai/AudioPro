@@ -45,12 +45,16 @@ namespace RF {
 
     AudioProject::AudioProject(QWidget *parent, int id, const QPoint &pos, const QSize &size) :
         QMainWindow(parent), /*(mCommandManager(std::make_unique<CommandManager>),*/
+        mViewInfo(0.0, 1.0, ZoomInfo::GetDefaultZoom()),
         ui(new Ui::AudioProject)
     {
         ui->setupUi(this);
 
 //        mTracks = TrackList::create();
 
+        mDirManager = std::make_shared<DirManager>();
+
+        mTrackFactory.reset(new TrackFactory{ mDirManager, &mViewInfo });
         //QVBoxLayout *vLayout = new QVBoxLayout;
         //setLayout(vLayout);
 
@@ -94,7 +98,7 @@ namespace RF {
     void AudioProject::onImportRaw() {
         QString fileName =
                 QFileDialog::getOpenFileName(this, tr("Open File"),
-                                             "c:",
+                                             "c://Users//Administrator//Desktop",
                                              tr("PCM files (*.pcm)"));
         if (fileName.isNull()) {
             return;

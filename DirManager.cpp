@@ -4,6 +4,69 @@
 #include <QDir>
 
 namespace RF {
+
+    QString DirManager::globaltemp;
+
+    DirManager::DirManager()
+    {
+       mLastBlockFileDestructionCount = BlockFile::gBlockFileDestructionCount;
+
+       // Seed the random number generator.
+       // this need not be strictly uniform or random, but it should give
+       // unclustered numbers
+       srand(time(NULL));
+
+       // Set up local temp subdir
+       // Previously, Audacity just named project temp directories "project0",
+       // "project1" and so on. But with the advent of recovery code, we need a
+       // unique name even after a crash. So we create a random project index
+       // and make sure it is not used already. This will not pose any performance
+       // penalties as long as the number of open Audacity projects is much
+       // lower than RAND_MAX.
+       do {
+          mytemp = globaltemp + QString("//") +
+                    QString("project%1").arg(rand());
+       } while (QDir(mytemp).exists());
+
+//       numDirManagers++;
+//
+//       projPath = wxT("");
+//       projName = wxT("");
+//
+//       mLoadingTarget = NULL;
+//       mLoadingTargetIdx = 0;
+//       mMaxSamples = ~size_t(0);
+
+       // toplevel pool hash is fully populated to begin
+       {
+          // We can bypass the accessor function while initializing
+          auto &balanceInfo = mBalanceInfo;
+          auto &dirTopPool = balanceInfo.dirTopPool;
+          for(int i = 0; i < 256; ++i)
+             dirTopPool[i] = 0;
+       }
+
+       // Make sure there is plenty of space for temp files
+//       wxLongLong freeSpace = 0;
+//       if (wxGetDiskSpace(globaltemp, NULL, &freeSpace)) {
+//          if (freeSpace < wxLongLong(wxLL(100 * 1048576))) {
+//             ShowWarningDialog(NULL, wxT("DiskSpaceWarning"),
+//                               _("There is very little free disk space left on this volume.\nPlease select another temporary directory in Preferences."));
+//          }
+//       }
+    }
+
+    DirManager::~DirManager()
+    {
+//       numDirManagers--;
+//       if (numDirManagers == 0) {
+//          CleanTempDir();
+//          //::wxRmdir(temp);
+//       } else if( projFull.IsEmpty() && !mytemp.IsEmpty()) {
+//          CleanDir(mytemp, wxEmptyString, ".DS_Store", _("Cleaning project temporary files"), kCleanTopDirToo | kCleanDirsOnlyIfEmpty );
+//       }
+    }
+
     BlockFilePtr DirManager::NewSimpleBlockFile(
             samplePtr sampleData, size_t sampleLen,
             sampleFormat format,
@@ -217,7 +280,8 @@ namespace RF {
 
             }
 
-            baseFileName = QString("e%1%2%3").arg(topnum, 2).arg(midnum, 2).arg(filenum, 3);
+            baseFileName = QString("e%1%2%3").arg(topnum, 2, 10, QLatin1Char('0')).
+                    arg(midnum, 2, 10, QLatin1Char('0')).arg(filenum, 3, 10, QLatin1Char('0'));
 
             if (!ContainsBlockFile(baseFileName)) {
                 // not in the hash, good.
@@ -301,7 +365,7 @@ namespace RF {
         }
 //        fileName.Assign(dir.GetFullPath(),value);
 //        return fileName.IsOk();
-        fileName.setFile(value);
+        fileName.setFile(dir.absolutePath() + QString('/') + value);
         return true;
     }
 
@@ -324,12 +388,15 @@ namespace RF {
             QString middir=QString("d");
             middir.append(value.mid(3,2));
 
-            QString subPath = topdir + '/' + middir;
-            dir.setPath(subPath);
+            QString subPath = QString('/') + topdir + QString("/") + middir;
+            dir.setPath(dir.absolutePath() + subPath);
 
             if(!dir.exists() && !dir.mkpath(dir.path()))
             { // need braces to avoid compiler warning about ambiguous else, see the macro
 //                wxLogSysError(_("mkdir in DirManager::MakeBlockFilePath failed."));
+                 // 暂时没有处理错误，只是加一条语句用于进入循环
+                // test
+                int a = 10;
             }
         }
         return dir;
