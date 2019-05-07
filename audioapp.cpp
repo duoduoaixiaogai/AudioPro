@@ -5,7 +5,7 @@
 
 namespace RF {
     bool AudioApp::init() {
-        DirManager::SetTempDir(QString("C://Users//Administrator//AppData//Local//Audacity//SessionData"));
+        DirManager::SetTempDir(QString("C://Users//Administrator//AppData//Local//AudioPro//SessionData"));
 
         PluginManager::get().initialize();
 

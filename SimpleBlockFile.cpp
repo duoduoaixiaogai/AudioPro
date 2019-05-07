@@ -71,9 +71,8 @@ namespace RF {
             void* summaryData)
     {
         QString name = mFileName.absoluteFilePath();
-        name.replace('/', "//");
         QFile file(name);
-        if (file.open(QIODevice::WriteOnly)) {
+        if (!file.open(QIODevice::WriteOnly)) {
             return false;
         }
 

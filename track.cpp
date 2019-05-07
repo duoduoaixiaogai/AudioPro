@@ -3,24 +3,31 @@
 namespace RF {
 
     Track::Track(const std::shared_ptr<DirManager> &projDirManager)
-    :  vrulerSize(36,0),
-       mDirManager(projDirManager)
+        :  vrulerSize(36,0),
+          mDirManager(projDirManager)
     {
-       mSelected  = false;
-       mLinked    = false;
+        mSelected  = false;
+        mLinked    = false;
 
-       mY = 0;
-       mHeight = DefaultHeight;
-       mIndex = 0;
+        mY = 0;
+        mHeight = DefaultHeight;
+        mIndex = 0;
 
-       mMinimized = false;
+        mMinimized = false;
 
-       mOffset = 0.0;
+        mOffset = 0.0;
 
-       mChannel = MonoChannel;
+        mChannel = MonoChannel;
     }
 
     Track::~Track()
     {
+    }
+
+    std::shared_ptr<TrackList> TrackList::Create()
+    {
+        std::shared_ptr<TrackList> result{ new TrackList{} };
+        result->mSelf = result;
+        return result;
     }
 }

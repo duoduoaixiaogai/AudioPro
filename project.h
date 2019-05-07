@@ -4,6 +4,7 @@
 #include "types.h"
 #include "DirManager.h"
 #include "ViewInfo.h"
+#include "importraw.h"
 
 #include <QMainWindow>
 
@@ -43,6 +44,11 @@ namespace RF {
         sampleFormat GetDefaultFormat() { return mDefaultFormat; }
         double GetRate() const { return mRate; }
         ViewInfo mViewInfo;
+        std::vector< std::shared_ptr<Track> >
+           addImportedTracks(const QString &fileName,
+                             TrackHolders &&newTracks);
+        void SelectNone();
+        TrackList *GetTracks() { return mTracks.get(); }
     private:
         void createMenus();
         void onImportRaw();
