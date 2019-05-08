@@ -13,7 +13,7 @@ namespace RF {
         EffectAmplify();
         virtual ~EffectAmplify();
 //        // ComponentInterface implementation
-//        ComponentInterfaceSymbol getSymbol() Q_DECL_OVERRIDE;
+        ComponentInterfaceSymbol getSymbol() Q_DECL_OVERRIDE;
 //        QString getDescription() Q_DECL_OVERRIDE;
 //        QString ManualPage() Q_DECL_OVERRIDE;
 //        // EffectDefinitionInterface implementation

@@ -5,6 +5,7 @@
 #include "track.h"
 #include "WaveTrack.h"
 #include "panelwrapper.h"
+#include "pluginmanager.h"
 
 #include <QVBoxLayout>
 #include <QFileDialog>
@@ -56,16 +57,16 @@ namespace RF {
         mDirManager = std::make_shared<DirManager>();
 
         mTrackFactory.reset(new TrackFactory{ mDirManager, &mViewInfo });
-        QVBoxLayout *vLayout = new QVBoxLayout;
-        QHBoxLayout *hLayout = new QHBoxLayout;
-        setLayout(vLayout);
-        vLayout->addLayout(hLayout);
-
-        mMainFrame = new FrameWrapper(this);
-        hLayout->addWidget(mMainFrame);
-
-        QVBoxLayout *v1Layout = new QVBoxLayout;
-        mMainFrame->setLayout(v1Layout);
+        //        QVBoxLayout *vLayout = new QVBoxLayout;
+        //        QHBoxLayout *hLayout = new QHBoxLayout;
+        //        setLayout(vLayout);
+        //        vLayout->addLayout(hLayout);
+        //
+        //        mMainFrame = new FrameWrapper(this);
+        //        hLayout->addWidget(mMainFrame);
+        //
+        //        QVBoxLayout *v1Layout = new QVBoxLayout;
+        //        mMainFrame->setLayout(v1Layout);
 
         //mTrackPanel = new TrackPanel(mMainFrame, );
         createMenus();
@@ -80,7 +81,9 @@ namespace RF {
     void AudioProject::createMenus() {
         QMenu *effectMenu = ui->menuBar->addMenu(QString("Effect"));
         QAction *amplifyAct = effectMenu->addAction(QString("Amplify"));
+        amplifyAct->setObjectName(QString("Amplify"));
         QAction *noiseRedAct = effectMenu->addAction(QString("Noise Reduction"));
+        noiseRedAct->setObjectName(QString("Noise Reduction"));
 
         QMenu *fileMenu = ui->menuBar->addMenu(QString("File"));
         QMenu *importMenu = fileMenu->addMenu(QString("Import"));
@@ -95,7 +98,7 @@ namespace RF {
     }
 
     void AudioProject::menuClicked() {
-
+        doEffect();
     }
 
     void AudioProject::fileClicked() {
@@ -116,7 +119,7 @@ namespace RF {
         importRaw(this, fileName, mTrackFactory.get(), newTracks);
 
         if (newTracks.size() <= 0)
-              return;
+            return;
 
         addImportedTracks(fileName, std::move(newTracks));
 
@@ -124,112 +127,62 @@ namespace RF {
 
     std::vector< std::shared_ptr< Track > >
     AudioProject::addImportedTracks(const QString &fileName,
-                                       TrackHolders &&newTracks)
+                                    TrackHolders &&newTracks)
     {
-       std::vector< std::shared_ptr< Track > > results;
+        std::vector< std::shared_ptr< Track > > results;
 
-       SelectNone();
 
-       bool initiallyEmpty = mTracks->empty();
-       double newRate = 0;
-       wxString trackNameBase = fileName.AfterLast(wxFILE_SEP_PATH).BeforeLast('.');
-       int i = -1;
+        bool initiallyEmpty = mTracks->empty();
+        double newRate = 0;
+        int i = -1;
 
-       // Must add all tracks first (before using Track::IsLeader)
-       for (auto &group : newTracks) {
-          if (group.empty()) {
-             wxASSERT(false);
-             continue;
-          }
-          auto first = group.begin()->get();
-          auto nChannels = group.size();
-          for (auto &uNewTrack : group) {
-             auto newTrack = mTracks->Add(std::move(uNewTrack));
-             results.push_back(Track::Pointer(newTrack));
-          }
-          mTracks->GroupChannels(*first, nChannels);
-       }
-       newTracks.clear();
+        // Must add all tracks first (before using Track::IsLeader)
+        for (auto &group : newTracks) {
+            if (group.empty()) {
+                //             wxASSERT(false);
+                continue;
+            }
+            auto first = group.begin()->get();
+            auto nChannels = group.size();
+            for (auto &uNewTrack : group) {
+                auto newTrack = mTracks->Add(std::move(uNewTrack));
+                if (newRate == 0)
+                    newRate = dynamic_cast<WaveTrack*>(newTrack)->GetRate();
+                newTrack->SetSelected(true);
+            }
+            mTracks->GroupChannels(*first, nChannels);
+        }
+        newTracks.clear();
 
-       // Now name them
+        mRate = newRate;
 
-       // Add numbers to track names only if there is more than one (mono or stereo)
-       // track (not necessarily, more than one channel)
-       const bool useSuffix =
-          make_iterator_range( results.begin() + 1, results.end() )
-             .any_of( []( decltype(*results.begin()) &pTrack )
-                { return pTrack->IsLeader(); } );
-
-       for (const auto &newTrack : results) {
-          if ( newTrack->IsLeader() )
-             // Count groups only
-             ++i;
-
-          newTrack->SetSelected(true);
-
-          if ( useSuffix )
-             newTrack->SetName(trackNameBase + wxString::Format(wxT(" %d" ), i + 1));
-          else
-             newTrack->SetName(trackNameBase);
-
-          newTrack->TypeSwitch( [&](WaveTrack *wt) {
-             if (newRate == 0)
-                newRate = wt->GetRate();
-
-             // Check if NEW track contains aliased blockfiles and if yes,
-             // remember this to show a warning later
-             if(WaveClip* clip = wt->GetClipByIndex(0)) {
-                BlockArray &blocks = clip->GetSequence()->GetBlockArray();
-                if (blocks.size())
-                {
-                   SeqBlock& block = blocks[0];
-                   if (block.f->IsAlias())
-                   {
-                      mImportedDependencies = true;
-                   }
-                }
-             }
-          });
-       }
-
-       // Automatically assign rate of imported file to whole project,
-       // if this is the first file that is imported
-       if (initiallyEmpty && newRate > 0) {
-          mRate = newRate;
-          GetSelectionBar()->SetRate(mRate);
-       }
-
-       PushState(wxString::Format(_("Imported '%s'"), fileName),
-                 _("Import"));
-
-    #if defined(__WXGTK__)
-       // See bug #1224
-       // The track panel hasn't we been fully created, so the DoZoomFit() will not give
-       // expected results due to a window width of zero.  Should be safe to yield here to
-       // allow the creattion to complete.  If this becomes a problem, it "might" be possible
-       // to queue a dummy event to trigger the DoZoomFit().
-       wxEventLoopBase::GetActive()->YieldFor(wxEVT_CATEGORY_UI | wxEVT_CATEGORY_USER_INPUT);
-    #endif
-
-       if (initiallyEmpty && !IsProjectSaved() ) {
-          wxString name = fileName.AfterLast(wxFILE_SEP_PATH).BeforeLast(wxT('.'));
-          mFileName =::wxPathOnly(fileName) + wxFILE_SEP_PATH + name + wxT(".aup");
-          mbLoadedFromAup = false;
-          SetProjectTitle();
-       }
-
-       // Moved this call to higher levels to prevent flicker redrawing everything on each file.
-       //   HandleResize();
-
-       return results;
+        return results;
     }
 
-    void AudioProject::SelectNone()
-    {
-       for (auto t : GetTracks()->Any())
-          t->SetSelected(false);
+    void AudioProject::doEffect() {
+        QString pluginID;
+        QObject *obj = this->sender();
+        if (obj->objectName() == QString("Amplify")) {
+            pluginID = QString("Effect_Audacity_Audacity_Amplify_Built-in Effect: Amplify");
+        } else {
+            pluginID = QString("");
+        }
+        auto tracks = GetTracks();
+        auto rate = GetRate();
+        //        auto &selectedRegion = GetSelection();
+        const PluginDescriptor *plug = PluginManager::get().getPlugin(pluginID);
+        if (!plug)
+            return;
+        EffectType type = plug->getEffectType();
 
-       mTrackPanel->Refresh(false);
+        auto nTracksOriginally = getTrackCount();
+
+        int count = 0;
+        bool clean = true;
+        for (auto t : tracks->Selected< const WaveTrack >()) {
+            if (t->GetEndTime() != 0.0)
+                clean = false;
+            count++;
+        }
     }
-
 }

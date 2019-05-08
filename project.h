@@ -5,6 +5,7 @@
 #include "DirManager.h"
 #include "ViewInfo.h"
 #include "importraw.h"
+#include "track.h"
 
 #include <QMainWindow>
 
@@ -23,7 +24,6 @@ namespace RF {
     class TrackPanel;
     class CommandManager;
     class TrackFactory;
-    class TrackList;
 
 
     class AudioProject : public QMainWindow
@@ -47,11 +47,13 @@ namespace RF {
         std::vector< std::shared_ptr<Track> >
            addImportedTracks(const QString &fileName,
                              TrackHolders &&newTracks);
-        void SelectNone();
         TrackList *GetTracks() { return mTracks.get(); }
+        const TrackList *GetTracks() const { return mTracks.get(); }
+        size_t getTrackCount() const { return GetTracks()->size(); }
     private:
         void createMenus();
         void onImportRaw();
+        void doEffect();
 
     private slots:
         void menuClicked();

@@ -57,6 +57,11 @@ namespace RF {
         mValid = valid;
     }
 
+    EffectType PluginDescriptor::getEffectType() const
+    {
+       return mEffectType;
+    }
+
     void PluginDescriptor::setEffectFamilyId(const QString &family) {
         mEffectFamily = family;
     }
@@ -190,6 +195,16 @@ namespace RF {
                 .arg(module->getPath());
     }
 
+    PluginID PluginManager::getID(EffectDefinitionInterface *effect)
+    {
+       return QString("%1_%2_%3_%4_%5")
+                               .arg(getPluginTypeString(PluginTypeEffect))
+                               .arg(effect->getFamilyId().internal())
+                               .arg(effect->getVendor().internal())
+                               .arg(effect->getSymbol().internal())
+                               .arg(effect->getPath());
+    }
+
     QString PluginManager::getPluginTypeString(PluginType type) {
         QString str;
 
@@ -230,5 +245,15 @@ namespace RF {
         }
 
         return false;
+    }
+
+    const PluginDescriptor *PluginManager::getPlugin(const PluginID & ID)
+    {
+       if (mPlugins.find(ID) == mPlugins.end())
+       {
+          return NULL;
+       }
+
+       return &mPlugins[ID];
     }
 }

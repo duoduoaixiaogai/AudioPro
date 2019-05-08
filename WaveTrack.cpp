@@ -124,4 +124,28 @@ namespace RF {
         RightmostOrNewClip()->Flush();
     }
 
+    double WaveTrack::GetRate() const
+    {
+       return mRate;
+    }
+
+    double WaveTrack::GetEndTime() const
+    {
+       bool found = false;
+       double best = 0.0;
+
+       if (mClips.empty())
+          return 0;
+
+       for (const auto &clip : mClips)
+          if (!found)
+          {
+             found = true;
+             best = clip->GetEndTime();
+          }
+          else if (clip->GetEndTime() > best)
+             best = clip->GetEndTime();
+
+       return best;
+    }
 }

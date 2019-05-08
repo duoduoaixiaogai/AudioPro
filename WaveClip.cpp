@@ -111,4 +111,15 @@ namespace RF {
 
        //wxLogDebug(wxT("now sample count %lli"), (long long) mSequence->GetNumSamples());
     }
+
+    double WaveClip::GetEndTime() const
+    {
+       auto numSamples = mSequence->GetNumSamples();
+
+       double maxLen = mOffset + (numSamples+mAppendBufferLen).as_double()/mRate;
+       // JS: calculated value is not the length;
+       // it is a maximum value and can be negative; no clipping to 0
+
+       return maxLen;
+    }
 }

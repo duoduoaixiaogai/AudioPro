@@ -8,4 +8,9 @@ namespace RF {
     EffectAmplify::~EffectAmplify() {
 
     }
+
+    ComponentInterfaceSymbol EffectAmplify::getSymbol()
+    {
+       return AMPLIFY_PLUGIN_SYMBOL;
+    }
 }

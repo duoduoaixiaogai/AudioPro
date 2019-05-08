@@ -30,4 +30,63 @@ namespace RF {
         result->mSelf = result;
         return result;
     }
+
+    void Track::SetOwner
+    (const std::weak_ptr<TrackList> &list, TrackNodePointer node)
+    {
+        // BUG: When using this function to clear an owner, we may need to clear
+        // focussed track too.  Otherwise focus could remain on an invisible (or deleted) track.
+        mList = list;
+        mNode = node;
+    }
+
+//    template<typename TrackKind>
+//    Track* TrackList::Add(std::unique_ptr<TrackKind> &&t)
+//    {
+//        Track *pTrack;
+//        push_back(ListOfTracks::value_type(pTrack = t.release()));
+//
+//        auto n = getPrev( getEnd() );
+//
+//        pTrack->SetOwner(mSelf, n);
+//        //   pTrack->SetId( TrackId{ ++sCounter } );
+//        //   RecalcPositions(n);
+//        //   AdditionEvent(n);
+//        return back().get();
+//    }
+
+    void TrackList::GroupChannels(
+            Track &track, size_t groupSize, bool resetChannels )
+    {
+        // If group size is more than two, for now only the first two channels
+        // are grouped as stereo, and any others remain mono
+        auto list = track.mList.lock();
+        if ( groupSize > 0 && list.get() == this  ) {
+            auto iter = track.mNode.first;
+            auto after = iter;
+            auto end = this->ListOfTracks::end();
+            auto count = groupSize;
+            for ( ; after != end && count; ++after, --count )
+                ;
+
+            if ( groupSize > 1 ) {
+                const auto channel = *iter++;
+                channel->SetChannel( Track::LeftChannel );
+                (*iter++)->SetChannel( Track::RightChannel );
+                while (iter != after)
+                    (*iter++)->SetChannel( Track::MonoChannel );
+            }
+            return;
+        }
+    }
+
+    bool Track::IsSelected() const
+       { return GetSelected(); }
+
+    void Track::SetSelected(bool s)
+    {
+       if (mSelected != s) {
+          mSelected = s;
+       }
+    }
 }

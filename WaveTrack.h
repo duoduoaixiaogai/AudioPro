@@ -19,6 +19,8 @@ namespace RF {
                        size_t len, unsigned int stride=1,
                        XMLWriter* blockFileLog=NULL);
         void Flush();
+        double GetRate() const;
+        double GetEndTime() const override;
     private:
         friend class TrackFactory;
         WaveTrack(const std::shared_ptr<DirManager> &projDirManager,

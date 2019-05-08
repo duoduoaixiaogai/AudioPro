@@ -8,6 +8,7 @@ namespace RF {
 
     class Effect : public EffectClientInterface {
     public:
+        Effect();
         virtual bool LoadFactoryDefaults();
         virtual EffectType getType();
         virtual ComponentInterfaceSymbol getFamilyId();
@@ -21,6 +22,8 @@ namespace RF {
         virtual ComponentInterfaceSymbol getVendor();
         virtual QString getVersion();
         virtual QString getDescription();
+    private:
+        EffectClientInterface *mClient;
     };
 }
 

@@ -27,6 +27,7 @@ namespace RF {
         { mDirty++; }
         void Flush();
         int GetRate() const { return mRate; }
+        double GetEndTime() const;
     protected:
         std::unique_ptr<Sequence> mSequence;
         double mOffset { 0 };

@@ -54,7 +54,7 @@ namespace RF {
         //
         //        QString getEffectFamilyId() const;
         //
-        //        EffectType getEffectType() const;
+        EffectType getEffectType() const;
         //        bool isEffectDefault() const;
         //        bool isEffectInteractive() const;
         //        bool isEffectLegacy() const;
@@ -103,9 +103,11 @@ namespace RF {
         void terminate();
         static PluginManager& get();
         static PluginID getID(ComponentInterface *module);
+        static PluginID getID(EffectDefinitionInterface *effect);
         static QString getPluginTypeString(PluginType type);
 
         bool isPluginRegistered(const QString &path) Q_DECL_OVERRIDE;
+        const PluginDescriptor *getPlugin(const PluginID & ID);
 
         ~PluginManager();
     private:

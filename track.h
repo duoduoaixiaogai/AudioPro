@@ -12,6 +12,7 @@
 namespace RF {
 
     class WaveTrack;
+    class TrackList;
 
     using ListOfTracks = std::list< std::shared_ptr< Track > >;
 
@@ -91,6 +92,7 @@ namespace RF {
 
     class Track : public CommonTrackPanelCell, public XMLTagHandler
     {
+        friend class TrackList;
     public:
         Track(const std::shared_ptr<DirManager> &mDirManager);
         virtual ~ Track();
@@ -102,6 +104,10 @@ namespace RF {
             MonoChannel = 2
         };
         enum : unsigned { DefaultHeight = 150 };
+        bool IsSelected() const;
+        bool GetSelected() const { return mSelected; }
+        virtual double GetEndTime() const = 0;
+        virtual void SetSelected(bool s);
     protected:
         mutable std::shared_ptr<DirManager> mDirManager;
         double              mOffset;
@@ -111,6 +117,8 @@ namespace RF {
         int            mIndex;
         bool           mMinimized;
         ChannelType         mChannel;
+        std::weak_ptr<TrackList> mList;
+        TrackNodePointer mNode{};
     private:
         bool           mSelected;
         virtual TrackKind GetKind() const { return TrackKind::None; }
@@ -124,6 +132,11 @@ namespace RF {
         T
         >::type
         track_cast(const Track *track);
+        Track *GetLink() const;
+        void SetOwner
+        (const std::weak_ptr<TrackList> &list, TrackNodePointer node);
+        bool GetLinked  () const { return mLinked; }
+        void SetChannel(ChannelType c) { mChannel = c; }
     };
 
     class AudioTrack : public Track
@@ -482,6 +495,7 @@ namespace RF {
     class TrackList final : /*public wxEvtHandler,*/ public ListOfTracks
     {
     public:
+        friend class Track;
         static std::shared_ptr<TrackList> Create();
         template < typename TrackType = Track >
         auto Any()
@@ -489,6 +503,28 @@ namespace RF {
         {
             return Tracks< TrackType >();
         }
+
+        template<typename TrackKind>
+        Track* Add(std::unique_ptr<TrackKind> &&t) {
+            Track *pTrack;
+            push_back(ListOfTracks::value_type(pTrack = t.release()));
+
+            auto n = getPrev( getEnd() );
+
+            pTrack->SetOwner(mSelf, n);
+            //   pTrack->SetId( TrackId{ ++sCounter } );
+            //   RecalcPositions(n);
+            //   AdditionEvent(n);
+            return back().get();
+        }
+        void GroupChannels(
+                Track &track, size_t groupSize, bool resetChannels = true );
+        template < typename TrackType = Track >
+              auto Selected()
+                 -> TrackIterRange< TrackType >
+           {
+              return Tracks< TrackType >( &Track::IsSelected );
+           }
     private:
         std::weak_ptr<TrackList> mSelf;
         template <
@@ -501,6 +537,34 @@ namespace RF {
         {
             auto b = getBegin(), e = getEnd();
             return { { b, b, e, pred }, { b, e, e, pred } };
+        }
+        bool isNull(TrackNodePointer p) const
+        { return (p.second == this && p.first == ListOfTracks::end())
+                    || (p.second == &mPendingUpdates && p.first == mPendingUpdates.end()); }
+        TrackNodePointer getEnd() const
+        { return { const_cast<TrackList*>(this)->ListOfTracks::end(),
+                        const_cast<TrackList*>(this)}; }
+        TrackNodePointer getBegin() const
+        { return { const_cast<TrackList*>(this)->ListOfTracks::begin(),
+                        const_cast<TrackList*>(this)}; }
+        ListOfTracks mPendingUpdates;
+        TrackNodePointer getNext(TrackNodePointer p) const
+        {
+            if ( isNull(p) )
+                return p;
+            auto q = p;
+            ++q.first;
+            return q;
+        }
+        TrackNodePointer getPrev(TrackNodePointer p) const
+        {
+            if (p == getBegin())
+                return getEnd();
+            else {
+                auto q = p;
+                --q.first;
+                return q;
+            }
         }
     };
 }
