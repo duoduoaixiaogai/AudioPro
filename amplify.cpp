@@ -13,4 +13,14 @@ namespace RF {
     {
        return AMPLIFY_PLUGIN_SYMBOL;
     }
+
+    unsigned EffectAmplify::GetAudioInCount()
+    {
+       return 1;
+    }
+
+    unsigned EffectAmplify::GetAudioOutCount()
+    {
+       return 1;
+    }
 }

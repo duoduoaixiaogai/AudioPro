@@ -1,6 +1,8 @@
 ﻿#ifndef VIEWINFO_H
 #define VIEWINFO_H
 
+#include "SelectedRegion.h"
+
 #include <vector>
 
 namespace RF {
@@ -20,6 +22,8 @@ namespace RF {
     {
     public:
        ViewInfo(double start, double screenDuration, double pixelsPerSecond);
+
+       SelectedRegion selectedRegion;
     };
 
 }

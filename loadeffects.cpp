@@ -121,10 +121,7 @@ namespace RF {
     }
 
     ComponentInterface* BuiltinEffectsModule::createInstance(const QString &path) {
-        //return instantiate(path).release();
-        // test
-        Q_UNUSED(path)
-        return nullptr;
+        return instantiate(path).release();
     }
 
     void BuiltinEffectsModule::deleteInstance(ComponentInterface *instance) {

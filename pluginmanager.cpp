@@ -7,10 +7,35 @@ namespace RF {
         mPluginType = PluginTypeNone;
         mEnabled = false;
         mValid = false;
+        mEffectLegacy = false;
+
+        mInstance = nullptr;
     }
 
     PluginDescriptor::~PluginDescriptor() {
 
+    }
+
+    ComponentInterface *PluginDescriptor::getInstance()
+    {
+       if (!mInstance)
+       {
+          if (getPluginType() == PluginTypeModule)
+          {
+             mInstance = ModuleManager::get().createProviderInstance(getID(), getPath());
+          }
+          else
+          {
+             mInstance = ModuleManager::get().CreateInstance(getProviderID(), getPath());
+          }
+       }
+
+       return mInstance;
+    }
+
+    PluginType PluginDescriptor::getPluginType() const
+    {
+       return mPluginType;
     }
 
     void PluginDescriptor::setPluginType(PluginType type) {
@@ -31,6 +56,11 @@ namespace RF {
 
     void PluginDescriptor::setPath(const QString &path) {
         mPath = path;
+    }
+
+    const PluginID & PluginDescriptor::getProviderID() const
+    {
+       return mProviderID;
     }
 
     const QString& PluginDescriptor::getPath() const {
@@ -60,6 +90,11 @@ namespace RF {
     EffectType PluginDescriptor::getEffectType() const
     {
        return mEffectType;
+    }
+
+    bool PluginDescriptor::isEffectLegacy() const
+    {
+       return mEffectLegacy;
     }
 
     void PluginDescriptor::setEffectFamilyId(const QString &family) {
@@ -255,5 +290,28 @@ namespace RF {
        }
 
        return &mPlugins[ID];
+    }
+
+    ComponentInterface *PluginManager::getInstance(const PluginID & ID)
+    {
+       if (mPlugins.find(ID) == mPlugins.end())
+       {
+          return NULL;
+       }
+
+       PluginDescriptor & plug = mPlugins[ID];
+
+       // If not dealing with legacy effects, make sure the provider is loaded
+       if (!plug.isEffectLegacy())
+       {
+          const PluginID & prov = plug.getProviderID();
+          if (mPlugins.find(prov) == mPlugins.end())
+          {
+             return nullptr;
+          }
+          mPlugins[prov].getInstance();
+       }
+
+       return plug.getInstance();
     }
 }

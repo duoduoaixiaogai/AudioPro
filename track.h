@@ -19,6 +19,9 @@ namespace RF {
     using TrackNodePointer =
     std::pair< ListOfTracks::iterator, ListOfTracks* >;
 
+    inline bool operator != (const TrackNodePointer &a, const TrackNodePointer &b)
+    { return !(a == b); }
+
     enum class TrackKind
     {
         None,
@@ -240,7 +243,7 @@ namespace RF {
             : mBegin( begin ), mIter( iter ), mEnd( end ), mPred( pred )
         {
             // Establish the class invariant
-            if (this->mIter != this->mEnd && !this->valid())
+            if (this->mIter != this->mEnd /*&& !this->valid()*/)
                 this->operator ++ ();
         }
 

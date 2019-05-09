@@ -24,6 +24,29 @@ namespace RF {
 
     }
 
+    ComponentInterface *ModuleManager::createProviderInstance(const PluginID & providerID,
+                                                          const QString & path)
+    {
+       if (path.isEmpty() && mDynModules.find(providerID) != mDynModules.end())
+       {
+          return mDynModules[providerID].get();
+       }
+
+       //return LoadModule(path);
+       return nullptr;
+    }
+
+    ComponentInterface *ModuleManager::CreateInstance(const PluginID & providerID,
+                                                  const QString & path)
+    {
+       if (mDynModules.find(providerID) == mDynModules.end())
+       {
+          return nullptr;
+       }
+
+       return mDynModules[providerID]->createInstance(path);
+    }
+
     void ModuleManager::initializeBuiltins() {
         PluginManager& pm = PluginManager::get();
 

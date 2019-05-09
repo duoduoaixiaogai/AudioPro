@@ -12,14 +12,16 @@ namespace RF {
     public:
         EffectAmplify();
         virtual ~EffectAmplify();
-//        // ComponentInterface implementation
+        //        // ComponentInterface implementation
         ComponentInterfaceSymbol getSymbol() Q_DECL_OVERRIDE;
-//        QString getDescription() Q_DECL_OVERRIDE;
-//        QString ManualPage() Q_DECL_OVERRIDE;
-//        // EffectDefinitionInterface implementation
-//        EffectType getType() Q_DECL_OVERRIDE;
-//        // EffectClientInterface implementation
-//        unsigned get
+        //        QString getDescription() Q_DECL_OVERRIDE;
+        //        QString ManualPage() Q_DECL_OVERRIDE;
+        //        // EffectDefinitionInterface implementation
+        //        EffectType getType() Q_DECL_OVERRIDE;
+        //        // EffectClientInterface implementation
+        //        unsigned get
+        unsigned GetAudioInCount() override;
+        unsigned GetAudioOutCount() override;
     };
 }
 

@@ -1,4 +1,5 @@
 ﻿#include "effect.h"
+#include "track.h"
 
 namespace RF {
 
@@ -35,7 +36,12 @@ namespace RF {
     }
 
     bool Effect::isLegacy() {
-        return true;
+        if (mClient)
+           {
+              return false;
+           }
+
+           return true;
     }
 
     bool Effect::supportsRealtime() {
@@ -76,5 +82,65 @@ namespace RF {
 
     QString Effect::getDescription() {
         return QString("");
+    }
+
+    bool Effect::SetHost(EffectHostInterface *host)
+    {
+       if (mClient)
+       {
+          return mClient->SetHost(host);
+       }
+
+       return true;
+    }
+
+    bool Effect::Startup(EffectClientInterface *client)
+    {
+       // Let destructor know we need to be shutdown
+       mClient = client;
+
+       // Set host so client startup can use our services
+       if (!SetHost(this))
+       {
+          // Bail if the client startup fails
+          mClient = nullptr;
+          return false;
+       }
+
+       mNumAudioIn = GetAudioInCount();
+       mNumAudioOut = GetAudioOutCount();
+
+       return true;
+    }
+
+    unsigned Effect::GetAudioInCount()
+    {
+       if (mClient)
+       {
+          return mClient->GetAudioInCount();
+       }
+
+       return 0;
+    }
+
+    unsigned Effect::GetAudioOutCount()
+    {
+       if (mClient)
+       {
+          return mClient->GetAudioOutCount();
+       }
+
+       return 0;
+    }
+
+    bool Effect::DoEffect(::QMainWindow *parent,
+                          double projectRate,
+                          TrackList *list,
+                          TrackFactory *factory,
+                          SelectedRegion *selectedRegion,
+                          bool shouldPrompt)
+    {
+
+            return true;
     }
 }

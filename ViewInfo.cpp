@@ -9,7 +9,9 @@ namespace RF {
 
     }
 
-    ViewInfo::ViewInfo(double start, double screenDuration, double pixelsPerSecond) : ZoomInfo(start, pixelsPerSecond) {
+    ViewInfo::ViewInfo(double start, double screenDuration, double pixelsPerSecond)
+        : ZoomInfo(start, pixelsPerSecond)
+        , selectedRegion() {
 
     }
 }

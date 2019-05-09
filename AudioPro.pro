@@ -58,7 +58,9 @@ SOURCES += main.cpp\
     CommonTrackPanelCell.cpp \
     TrackPanel.cpp \
     Dither.cpp \
-    effect.cpp
+    effect.cpp \
+    EffectManager.cpp \
+    SelectedRegion.cpp
 
 HEADERS  += project.h \
     audioapp.h \
@@ -105,7 +107,9 @@ HEADERS  += project.h \
     SampleFormat.h \
     SimpleBlockFile.h \
     amplify.h \
-    Dither.h
+    Dither.h \
+    EffectManager.h \
+    SelectedRegion.h
 
 FORMS    += project.ui \
     importrawdialog.ui

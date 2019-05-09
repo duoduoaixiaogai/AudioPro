@@ -13,6 +13,15 @@ namespace RF {
         EffectTypeTool,
     } EffectType;
 
+    class ConfigClientInterface {
+
+    };
+
+    class EffectHostInterface : public ConfigClientInterface
+    {
+
+    };
+
     class EffectDefinitionInterface : public ComponentInterface {
     public:
         virtual ~EffectDefinitionInterface() {}
@@ -29,8 +38,10 @@ namespace RF {
     class EffectClientInterface  : public EffectDefinitionInterface {
     public:
         virtual ~EffectClientInterface() {}
-
+        virtual bool SetHost(EffectHostInterface *host) = 0;
         virtual bool LoadFactoryDefaults() = 0;
+        virtual unsigned GetAudioInCount() = 0;
+        virtual unsigned GetAudioOutCount() = 0;
     };
 }
 

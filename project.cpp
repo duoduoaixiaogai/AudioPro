@@ -6,6 +6,7 @@
 #include "WaveTrack.h"
 #include "panelwrapper.h"
 #include "pluginmanager.h"
+#include "EffectManager.h"
 
 #include <QVBoxLayout>
 #include <QFileDialog>
@@ -169,7 +170,7 @@ namespace RF {
         }
         auto tracks = GetTracks();
         auto rate = GetRate();
-        //        auto &selectedRegion = GetSelection();
+        auto &selectedRegion = GetSelection();
         const PluginDescriptor *plug = PluginManager::get().getPlugin(pluginID);
         if (!plug)
             return;
@@ -177,12 +178,17 @@ namespace RF {
 
         auto nTracksOriginally = getTrackCount();
 
-        int count = 0;
-        bool clean = true;
-        for (auto t : tracks->Selected< const WaveTrack >()) {
-            if (t->GetEndTime() != 0.0)
-                clean = false;
-            count++;
-        }
+//        int count = 0;
+//        bool clean = true;
+//        for (auto t : tracks->Selected< const WaveTrack >()) {
+//            if (t->GetEndTime() != 0.0)
+//                clean = false;
+//            count++;
+//        }
+
+        EffectManager & em = EffectManager::Get();
+        bool success = em.DoEffect(pluginID, this, rate,
+              tracks, mTrackFactory.get(), &selectedRegion,
+              true);
     }
 }

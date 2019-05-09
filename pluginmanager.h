@@ -25,14 +25,14 @@ namespace RF {
         virtual ~PluginDescriptor();
 
         //        bool isInstantiated() const;
-        //        ComponentInterface* getInstance();
+        ComponentInterface* getInstance();
         //        void setInstance(ComponentInterface *instance);
         //
-        //        PluginType getPluginType() const;
+        PluginType getPluginType() const;
         void setPluginType(PluginType type);
         //
         const QString& getID() const;
-        //        const QString& getProviderID() const;
+        const QString& getProviderID() const;
         const QString& getPath() const;
         //        const ComponentInterfaceSymbol& getSymbol() const;
         //
@@ -57,7 +57,7 @@ namespace RF {
         EffectType getEffectType() const;
         //        bool isEffectDefault() const;
         //        bool isEffectInteractive() const;
-        //        bool isEffectLegacy() const;
+        bool isEffectLegacy() const;
         //        bool isEffectRealtime() const;
         //        bool isEffectAutomatable() const;
         //
@@ -69,6 +69,7 @@ namespace RF {
         void setEffectRealtime(bool realtime);
         void setEffectAutomatable(bool automatable);
     private:
+        ComponentInterface *mInstance;
         PluginType mPluginType;
         QString mID;
         QString mPath;
@@ -110,6 +111,7 @@ namespace RF {
         const PluginDescriptor *getPlugin(const PluginID & ID);
 
         ~PluginManager();
+        ComponentInterface *getInstance(const PluginID & ID);
     private:
         PluginManager() = default;
 

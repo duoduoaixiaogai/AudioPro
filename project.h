@@ -50,6 +50,7 @@ namespace RF {
         TrackList *GetTracks() { return mTracks.get(); }
         const TrackList *GetTracks() const { return mTracks.get(); }
         size_t getTrackCount() const { return GetTracks()->size(); }
+        SelectedRegion &GetSelection() { return mViewInfo.selectedRegion; }
     private:
         void createMenus();
         void onImportRaw();

@@ -25,6 +25,8 @@ namespace RF {
         bool discoverProviders();
 
         ~ModuleManager();
+        ComponentInterface *createProviderInstance(const PluginID & provider, const QString & path);
+        ComponentInterface *CreateInstance(const PluginID & provider, const QString & path);
     private:
         ModuleManager() = default;
 
