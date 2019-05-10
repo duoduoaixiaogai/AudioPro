@@ -28,6 +28,10 @@ namespace RF {
         void Flush();
         int GetRate() const { return mRate; }
         double GetEndTime() const;
+        double GetStartTime() const;
+        std::pair<float, float> GetMinMax(
+              double t0, double t1, bool mayThrow = true) const;
+        void TimeToSamplesClip(double t0, sampleCount *s0) const;
     protected:
         std::unique_ptr<Sequence> mSequence;
         double mOffset { 0 };

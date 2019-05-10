@@ -33,6 +33,7 @@ namespace RF {
 
     class BlockFile {
     public:
+        struct MinMaxRMS { float min, max, RMS; };
         BlockFile(QFileInfo &&fileName, size_t samples);
         virtual ~BlockFile();
         size_t GetLength() const { return mLen; }
@@ -41,6 +42,9 @@ namespace RF {
         const = 0;
         virtual void SaveXML(XMLWriter &xmlFile) = 0;
         static unsigned long gBlockFileDestructionCount;
+        virtual MinMaxRMS GetMinMaxRMS(bool mayThrow = true) const;
+        virtual MinMaxRMS GetMinMaxRMS(size_t start, size_t len,
+                                  bool mayThrow = true) const;
     protected:
         virtual void *CalcSummary(samplePtr buffer, size_t len,
                                      sampleFormat format,

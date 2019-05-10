@@ -167,6 +167,88 @@ namespace RF {
        return mMaxSamples;
     }
 
+    std::pair<float, float> Sequence::GetMinMax(
+       sampleCount start, sampleCount len, bool mayThrow) const
+    {
+       if (len == 0 || mBlock.size() == 0) {
+          return {
+             0.f,
+             // FLT_MAX?  So it doesn't look like a spurious '0' to a caller?
+
+             0.f
+             // -FLT_MAX?  So it doesn't look like a spurious '0' to a caller?
+          };
+       }
+
+       float min = FLT_MAX;
+       float max = -FLT_MAX;
+
+       unsigned int block0 = FindBlock(start);
+       unsigned int block1 = FindBlock(start + len - 1);
+
+       // First calculate the min/max of the blocks in the middle of this region;
+       // this is very fast because we have the min/max of every entire block
+       // already in memory.
+
+       for (unsigned b = block0 + 1; b < block1; ++b) {
+          auto results = mBlock[b].f->GetMinMaxRMS(mayThrow);
+
+          if (results.min < min)
+             min = results.min;
+          if (results.max > max)
+             max = results.max;
+       }
+
+       // Now we take the first and last blocks into account, noting that the
+       // selection may only partly overlap these blocks.  If the overall min/max
+       // of either of these blocks is within min...max, then we can ignore them.
+       // If not, we need read some samples and summaries from disk.
+       {
+          const SeqBlock &theBlock = mBlock[block0];
+          const auto &theFile = theBlock.f;
+          auto results = theFile->GetMinMaxRMS(mayThrow);
+
+          if (results.min < min || results.max > max) {
+             // start lies within theBlock:
+             auto s0 = ( start - theBlock.start ).as_size_t();
+             const auto maxl0 = (
+                // start lies within theBlock:
+                theBlock.start + theFile->GetLength() - start
+             ).as_size_t();
+//             wxASSERT(maxl0 <= mMaxSamples); // Vaughan, 2011-10-19
+             const auto l0 = limitSampleBufferSize ( maxl0, len );
+
+             results = theFile->GetMinMaxRMS(s0, l0, mayThrow);
+             if (results.min < min)
+                min = results.min;
+             if (results.max > max)
+                max = results.max;
+          }
+       }
+
+       if (block1 > block0)
+       {
+          const SeqBlock &theBlock = mBlock[block1];
+          const auto &theFile = theBlock.f;
+          auto results = theFile->GetMinMaxRMS(mayThrow);
+
+          if (results.min < min || results.max > max) {
+
+             // start + len - 1 lies in theBlock:
+             const auto l0 = ( start + len - theBlock.start ).as_size_t();
+//             wxASSERT(l0 <= mMaxSamples); // Vaughan, 2011-10-19
+
+             results = theFile->GetMinMaxRMS(0, l0, mayThrow);
+             if (results.min < min)
+                min = results.min;
+             if (results.max > max)
+                max = results.max;
+          }
+       }
+
+       return { min, max };
+    }
+
     void Sequence::AppendBlocksIfConsistent
     (BlockArray &additionalBlocks, bool replaceLast,
      sampleCount numSamples, const QString whereStr)
@@ -261,4 +343,54 @@ namespace RF {
 //             wxASSERT(false);
 //       }
     }
+
+    int Sequence::FindBlock(sampleCount pos) const
+    {
+//       wxASSERT(pos >= 0 && pos < mNumSamples);
+
+       if (pos == 0)
+          return 0;
+
+       int numBlocks = mBlock.size();
+
+       size_t lo = 0, hi = numBlocks, guess;
+       sampleCount loSamples = 0, hiSamples = mNumSamples;
+
+       while (true) {
+          //this is not a binary search, but a
+          //dictionary search where we guess something smarter than the binary division
+          //of the unsearched area, since samples are usually proportional to block file number.
+          const double frac = (pos - loSamples).as_double() /
+             (hiSamples - loSamples).as_double();
+          guess = std::min(hi - 1, lo + size_t(frac * (hi - lo)));
+          const SeqBlock &block = mBlock[guess];
+
+//          wxASSERT(block.f->GetLength() > 0);
+//          wxASSERT(lo <= guess && guess < hi && lo < hi);
+
+          if (pos < block.start) {
+//             wxASSERT(lo != guess);
+             hi = guess;
+             hiSamples = block.start;
+          }
+          else {
+             const sampleCount nextStart = block.start + block.f->GetLength();
+             if (pos < nextStart)
+                break;
+             else {
+//               wxASSERT(guess < hi - 1);
+                lo = guess + 1;
+                loSamples = nextStart;
+             }
+          }
+       }
+
+       const int rval = guess;
+//       wxASSERT(rval >= 0 && rval < numBlocks &&
+//                pos >= mBlock[rval].start &&
+//                pos < mBlock[rval].start + mBlock[rval].f->GetLength());
+
+       return rval;
+    }
+
 }

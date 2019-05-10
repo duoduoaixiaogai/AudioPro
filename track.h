@@ -111,6 +111,8 @@ namespace RF {
         bool GetSelected() const { return mSelected; }
         virtual double GetEndTime() const = 0;
         virtual void SetSelected(bool s);
+        bool IsLeader() const;
+        bool IsSelectedLeader() const;
     protected:
         mutable std::shared_ptr<DirManager> mDirManager;
         double              mOffset;
@@ -523,11 +525,25 @@ namespace RF {
         void GroupChannels(
                 Track &track, size_t groupSize, bool resetChannels = true );
         template < typename TrackType = Track >
-              auto Selected()
-                 -> TrackIterRange< TrackType >
+        auto Selected()
+        -> TrackIterRange< TrackType >
+        {
+            return Tracks< TrackType >( &Track::IsSelected );
+        }
+        template < typename TrackType = const Track >
+              auto Selected() const
+                 -> typename std::enable_if< std::is_const<TrackType>::value,
+                    TrackIterRange< TrackType >
+                 >::type
            {
               return Tracks< TrackType >( &Track::IsSelected );
            }
+        template < typename TrackType = Track >
+        auto SelectedLeaders()
+        -> TrackIterRange< TrackType >
+        {
+            return Tracks< TrackType >( &Track::IsSelectedLeader );
+        }
     private:
         std::weak_ptr<TrackList> mSelf;
         template <

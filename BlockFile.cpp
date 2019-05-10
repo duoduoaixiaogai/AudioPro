@@ -301,4 +301,36 @@ namespace RF {
 
         return framesRead;
     }
+
+    auto BlockFile::GetMinMaxRMS(bool)
+       const -> MinMaxRMS
+    {
+       return { mMin, mMax, mRMS };
+    }
+
+    auto BlockFile::GetMinMaxRMS(size_t start, size_t len, bool mayThrow)
+       const -> MinMaxRMS
+    {
+       // TODO: actually use summaries
+       SampleBuffer blockData(len, floatSample);
+
+       this->ReadData(blockData.ptr(), floatSample, start, len, mayThrow);
+
+       float min = FLT_MAX;
+       float max = -FLT_MAX;
+       float sumsq = 0;
+
+       for( decltype(len) i = 0; i < len; i++ )
+       {
+          float sample = ((float*)blockData.ptr())[i];
+
+          if( sample > max )
+             max = sample;
+          if( sample < min )
+             min = sample;
+          sumsq += (sample*sample);
+       }
+
+       return { min, max, (float)sqrt(sumsq/len) };
+    }
 }

@@ -22,6 +22,9 @@ namespace RF {
         //        unsigned get
         unsigned GetAudioInCount() override;
         unsigned GetAudioOutCount() override;
+        bool Init() override;
+    private:
+       double mPeak;
     };
 }
 

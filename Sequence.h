@@ -47,6 +47,8 @@ namespace RF {
         Sequence(const std::shared_ptr<DirManager> &projDirManager, sampleFormat format);
         size_t GetIdealBlockSize() const;
         sampleCount GetNumSamples() const { return mNumSamples; }
+        std::pair<float, float> GetMinMax(
+              sampleCount start, sampleCount len, bool mayThrow) const;
     private:
         static bool Read(samplePtr buffer, sampleFormat format,
                          const SeqBlock &b,
@@ -58,6 +60,7 @@ namespace RF {
         (const BlockArray &block, size_t maxSamples, size_t from,
          sampleCount numSamples, const QString whereStr,
          bool mayThrow = true);
+        int FindBlock(sampleCount pos) const;
     private:
 
         static size_t    sMaxDiskBlockSize;

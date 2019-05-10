@@ -3,6 +3,8 @@
 
 #include "moduleinterface.h"
 
+class QMainWindow;
+
 namespace RF {
     typedef enum EffectType : int {
         EffectTypeNone,
@@ -33,6 +35,7 @@ namespace RF {
         virtual bool isLegacy() = 0;
         virtual bool supportsRealtime() = 0;
         virtual bool supportsAutomation() = 0;
+        virtual bool IsInteractive() = 0;
     };
 
     class EffectClientInterface  : public EffectDefinitionInterface {
@@ -42,6 +45,7 @@ namespace RF {
         virtual bool LoadFactoryDefaults() = 0;
         virtual unsigned GetAudioInCount() = 0;
         virtual unsigned GetAudioOutCount() = 0;
+        virtual bool ShowInterface(QMainWindow *parent, bool forceModal = false) = 0;
     };
 }
 

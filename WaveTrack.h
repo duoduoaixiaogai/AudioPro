@@ -21,6 +21,8 @@ namespace RF {
         void Flush();
         double GetRate() const;
         double GetEndTime() const override;
+        std::pair<float, float> GetMinMax(
+              double t0, double t1, bool mayThrow = true) const;
     private:
         friend class TrackFactory;
         WaveTrack(const std::shared_ptr<DirManager> &projDirManager,

@@ -122,4 +122,43 @@ namespace RF {
 
        return maxLen;
     }
+
+    double WaveClip::GetStartTime() const
+    {
+       // JS: mOffset is the minimum value and it is returned; no clipping to 0
+       return mOffset;
+    }
+
+    std::pair<float, float> WaveClip::GetMinMax(
+       double t0, double t1, bool mayThrow) const
+    {
+       if (t0 > t1) {
+//          if (mayThrow)
+//             THROW_INCONSISTENCY_EXCEPTION;
+          return {
+             0.f,  // harmless, but unused since Sequence::GetMinMax does not use these values
+             0.f   // harmless, but unused since Sequence::GetMinMax does not use these values
+          };
+       }
+
+       if (t0 == t1)
+          return{ 0.f, 0.f };
+
+       sampleCount s0, s1;
+
+       TimeToSamplesClip(t0, &s0);
+       TimeToSamplesClip(t1, &s1);
+
+       return mSequence->GetMinMax(s0, s1-s0, mayThrow);
+    }
+
+    void WaveClip::TimeToSamplesClip(double t0, sampleCount *s0) const
+    {
+       if (t0 < mOffset)
+          *s0 = 0;
+       else if (t0 > mOffset + mSequence->GetNumSamples().as_double()/mRate)
+          *s0 = mSequence->GetNumSamples();
+       else
+          *s0 = sampleCount( floor(((t0 - mOffset) * mRate) + 0.5) );
+    }
 }

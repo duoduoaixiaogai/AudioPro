@@ -89,4 +89,10 @@ namespace RF {
           mSelected = s;
        }
     }
+
+    bool Track::IsLeader() const
+       { return !GetLink() || GetLinked(); }
+
+    bool Track::IsSelectedLeader() const
+       { return IsSelected() && IsLeader(); }
 }

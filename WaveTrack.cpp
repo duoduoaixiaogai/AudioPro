@@ -148,4 +148,43 @@ namespace RF {
 
        return best;
     }
+
+    std::pair<float, float> WaveTrack::GetMinMax(
+       double t0, double t1, bool mayThrow) const
+    {
+       std::pair<float, float> results {
+          // we need these at extremes to make sure we find true min and max
+          FLT_MAX, -FLT_MAX
+       };
+       bool clipFound = false;
+
+       if (t0 > t1) {
+//          if (mayThrow)
+//             THROW_INCONSISTENCY_EXCEPTION;
+          return results;
+       }
+
+       if (t0 == t1)
+          return results;
+
+       for (const auto &clip: mClips)
+       {
+          if (t1 >= clip->GetStartTime() && t0 <= clip->GetEndTime())
+          {
+             clipFound = true;
+             auto clipResults = clip->GetMinMax(t0, t1, mayThrow);
+             if (clipResults.first < results.first)
+                results.first = clipResults.first;
+             if (clipResults.second > results.second)
+                results.second = clipResults.second;
+          }
+       }
+
+       if(!clipFound)
+       {
+          results = { 0.f, 0.f }; // sensible defaults if no clips found
+       }
+
+       return results;
+    }
 }
