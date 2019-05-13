@@ -2,8 +2,10 @@
 #define EFFECTINTERFACE_H
 
 #include "moduleinterface.h"
+#include "amplifydialog.h"
 
 class QMainWindow;
+class QDialog;
 
 namespace RF {
     typedef enum EffectType : int {
@@ -15,13 +17,27 @@ namespace RF {
         EffectTypeTool,
     } EffectType;
 
+    class EffectUIHostInterface
+    {
+    public:
+        virtual ~EffectUIHostInterface() {}
+    };
+
     class ConfigClientInterface {
 
     };
 
+    class EffectUIClientInterface
+    {
+    public:
+        virtual bool PopulateUI(QWidget* parent) = 0;
+    };
+
     class EffectHostInterface : public ConfigClientInterface
     {
-
+    public:
+        virtual ~EffectHostInterface() {};
+        virtual AmplifyDialog* CreateUI(QMainWindow *parent, EffectUIClientInterface *client) = 0;
     };
 
     class EffectDefinitionInterface : public ComponentInterface {

@@ -23,8 +23,11 @@ namespace RF {
         unsigned GetAudioInCount() override;
         unsigned GetAudioOutCount() override;
         bool Init() override;
+        void PopulateOrExchange(QWidget *parent) override;
     private:
        double mPeak;
+       double mRatio;
+       double mRatioClip;
     };
 }
 

@@ -13,6 +13,9 @@ namespace RF {
        void operator () (T *p) const { if (p) p->deleteLater(); }
     };
 
+    template <typename T>
+    using Destroy_ptr = std::unique_ptr<T, Destroyer<T>>;
+
     template<typename X>
     class ArrayOf : public std::unique_ptr<X[]>
     {

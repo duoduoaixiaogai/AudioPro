@@ -60,7 +60,9 @@ SOURCES += main.cpp\
     Dither.cpp \
     effect.cpp \
     EffectManager.cpp \
-    SelectedRegion.cpp
+    SelectedRegion.cpp \
+    amplifydialog.cpp \
+    amplifyform.cpp
 
 HEADERS  += project.h \
     audioapp.h \
@@ -109,11 +111,15 @@ HEADERS  += project.h \
     amplify.h \
     Dither.h \
     EffectManager.h \
-    SelectedRegion.h
+    SelectedRegion.h \
+    amplifydialog.h \
+    amplifyform.h
 
 FORMS    += project.ui \
-    importrawdialog.ui
+    importrawdialog.ui \
+    amplifydialog.ui \
+    amplifyform.ui
 
-LIBS += -Lf:/AudioPro/libsndfile/libs -llibsndfile
+LIBS += -Le:/GithubProject/AudioPro/libsndfile/libs -llibsndfile
 
-INCLUDEPATH = f:/AudioPro/libsndfile
+INCLUDEPATH = e:/GithubProject/AudioPro/libsndfile

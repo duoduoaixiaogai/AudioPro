@@ -95,4 +95,30 @@ namespace RF {
 
     bool Track::IsSelectedLeader() const
        { return IsSelected() && IsLeader(); }
+
+    Track *Track::GetLink() const
+    {
+       auto pList = mList.lock();
+       if (!pList)
+          return nullptr;
+
+       if (!pList->isNull(mNode)) {
+          if (mLinked) {
+             auto next = pList->getNext( mNode );
+             if ( !pList->isNull( next ) )
+                return next.first->get();
+          }
+
+          if (mNode.first != mNode.second->begin()) {
+             auto prev = pList->getPrev( mNode );
+             if ( !pList->isNull( prev ) ) {
+                auto track = prev.first->get();
+                if (track && track->GetLinked())
+                   return track;
+             }
+          }
+       }
+
+       return nullptr;
+    }
 }
