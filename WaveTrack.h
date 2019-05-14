@@ -30,6 +30,7 @@ namespace RF {
                   double rate = 0);
          WaveClip* RightmostOrNewClip();
          WaveClip* CreateClip();
+         TrackKind GetKind() const override { return TrackKind::Wave; }
     private:
         double mLegacyProjectFileOffset;
         int mAutoSaveIdent;

@@ -19,6 +19,9 @@ namespace RF {
     using TrackNodePointer =
     std::pair< ListOfTracks::iterator, ListOfTracks* >;
 
+    inline bool operator == (const TrackNodePointer &a, const TrackNodePointer &b)
+    { return a.second == b.second && a.first == b.first; }
+
     inline bool operator != (const TrackNodePointer &a, const TrackNodePointer &b)
     { return !(a == b); }
 
@@ -239,15 +242,15 @@ namespace RF {
         >::type
         ) >;
 
-//        template<typename Predicate = FunctionType>
-//        TrackIter( TrackNodePointer begin, TrackNodePointer iter,
-//                   TrackNodePointer end, const Predicate &pred = {} )
-//            : mBegin( begin ), mIter( iter ), mEnd( end ), mPred( pred )
-//        {
-//            // Establish the class invariant
-//            if (this->mIter != this->mEnd && !this->valid())
-//                this->operator ++ ();
-//        }
+        template<typename Predicate = FunctionType>
+        TrackIter( TrackNodePointer begin, TrackNodePointer iter,
+                   TrackNodePointer end, const Predicate &pred = {} )
+            : mBegin( begin ), mIter( iter ), mEnd( end ), mPred( pred )
+        {
+            // Establish the class invariant
+            if (this->mIter != this->mEnd && !this->valid())
+                this->operator ++ ();
+        }
 
         // Return an iterator that replaces the predicate, advancing to the first
         // position at or after the old position that satisfies the new predicate,
@@ -530,14 +533,14 @@ namespace RF {
 //        {
 //            return Tracks< TrackType >( &Track::IsSelected );
 //        }
-//        template < typename TrackType = const Track >
-//              auto Selected() const
-//                 -> typename std::enable_if< std::is_const<TrackType>::value,
-//                    TrackIterRange< TrackType >
-//                 >::type
-//           {
-//              return Tracks< TrackType >( &Track::IsSelected );
-//           }
+        template < typename TrackType = const Track >
+        auto Selected() const
+        -> typename std::enable_if< std::is_const<TrackType>::value,
+        TrackIterRange< TrackType >
+        >::type
+        {
+            return Tracks< TrackType >( &Track::IsSelected );
+        }
         template < typename TrackType = Track >
         auto SelectedLeaders()
         -> TrackIterRange< TrackType >
@@ -546,17 +549,31 @@ namespace RF {
         }
     private:
         std::weak_ptr<TrackList> mSelf;
-//        template <
-//                typename TrackType = Track,
-//                typename Pred =
-//                typename TrackIterRange< TrackType >::iterator::FunctionType
-//                >
-//        auto Tracks( const Pred &pred = {} )
-//        -> TrackIterRange< TrackType >
-//        {
-//            auto b = getBegin(), e = getEnd();
-//            return { { b, b, e, pred }, { b, e, e, pred } };
-//        }
+        template <
+                typename TrackType = Track,
+                typename Pred =
+                typename TrackIterRange< TrackType >::iterator::FunctionType
+                >
+        auto Tracks( const Pred &pred = {} )
+        -> TrackIterRange< TrackType >
+        {
+            auto b = getBegin(), e = getEnd();
+            return { { b, b, e, pred }, { b, e, e, pred } };
+        }
+        template <
+                typename TrackType = const Track,
+                typename Pred =
+                typename TrackIterRange< TrackType >::iterator::FunctionType
+                >
+        auto Tracks( const Pred &pred = {} ) const
+        -> typename std::enable_if< std::is_const<TrackType>::value,
+        TrackIterRange< TrackType >
+        >::type
+        {
+            auto b = const_cast<TrackList*>(this)->getBegin();
+            auto e = const_cast<TrackList*>(this)->getEnd();
+            return { { b, b, e, pred }, { b, e, e, pred } };
+        }
         bool isNull(TrackNodePointer p) const
         { return (p.second == this && p.first == ListOfTracks::end())
                     || (p.second == &mPendingUpdates && p.first == mPendingUpdates.end()); }

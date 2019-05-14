@@ -19,6 +19,7 @@ EffectUIHost::EffectUIHost(QMainWindow *parent,
 Effect::Effect() {
     mClient = nullptr;
     mUIDialog = nullptr;
+    mIsBatch = false;
 }
 
 bool Effect::LoadFactoryDefaults() {

@@ -86,6 +86,13 @@ namespace RF {
         double mDuration;
         bool mIsBatch;
     };
+
+#define Param(name, type, key, def, min, max, scale) \
+   static const QString KEY_ ## name = (key); \
+   static const type DEF_ ## name = (def); \
+   static const type MIN_ ## name = (min); \
+   static const type MAX_ ## name = (max); \
+   static const type SCL_ ## name = (scale);
 }
 
 #endif // EFFECT_H

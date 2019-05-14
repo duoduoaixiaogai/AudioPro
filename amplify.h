@@ -23,7 +23,7 @@ namespace RF {
         unsigned GetAudioInCount() override;
         unsigned GetAudioOutCount() override;
         bool Init() override;
-        void PopulateOrExchange(QWidget *parent) override;
+        void PopulateOrExchange(QWidget *amplifyForm) override;
     private:
        double mPeak;
        double mRatio;

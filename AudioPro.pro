@@ -120,6 +120,6 @@ FORMS    += project.ui \
     amplifydialog.ui \
     amplifyform.ui
 
-LIBS += -Le:/GithubProject/AudioPro/libsndfile/libs -llibsndfile
+LIBS += -Lf:/AudioPro/libsndfile/libs -llibsndfile
 
-INCLUDEPATH = e:/GithubProject/AudioPro/libsndfile
+INCLUDEPATH = f:/AudioPro/libsndfile

@@ -1,22 +1,28 @@
-#ifndef AMPLIFYFORM_H
+﻿#ifndef AMPLIFYFORM_H
 #define AMPLIFYFORM_H
+
+#include "amplify.h"
 
 #include <QWidget>
 
 namespace Ui {
-class AmplifyForm;
+    class AmplifyForm;
 }
 
-class AmplifyForm : public QWidget
-{
-    Q_OBJECT
+namespace RF {
+    class AmplifyForm : public QWidget
+    {
+        Q_OBJECT
 
-public:
-    explicit AmplifyForm(QWidget *parent = nullptr);
-    ~AmplifyForm();
+    public:
+        explicit AmplifyForm(QWidget *parent = nullptr);
+        ~AmplifyForm();
 
-private:
-    Ui::AmplifyForm *ui;
-};
+        template<class T>
+        void setAmpRange(T min, T max);
 
+    private:
+        Ui::AmplifyForm *ui;
+    };
+}
 #endif // AMPLIFYFORM_H
