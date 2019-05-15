@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-namespace RF {
+namespace Renfeng {
     class MachineEndianness {
     public:
         typedef enum {

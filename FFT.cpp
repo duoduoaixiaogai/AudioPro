@@ -54,7 +54,7 @@
 //#include "RealFFTf.h"
 //#include "Experimental.h"
 
-namespace RF {
+namespace Renfeng {
     static ArraysOf<int> gFFTBitTable;
     static const size_t MaxFastBits = 16;
 

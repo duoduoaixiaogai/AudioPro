@@ -7,7 +7,7 @@
 class QWidget;
 class QString;
 
-namespace RF {
+namespace Renfeng {
 
     class WaveTrack;
     class TrackFactory;

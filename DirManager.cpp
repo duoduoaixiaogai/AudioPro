@@ -3,7 +3,7 @@
 
 #include <QDir>
 
-namespace RF {
+namespace Renfeng {
 
     QString DirManager::globaltemp;
 

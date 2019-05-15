@@ -7,7 +7,7 @@
 #include <QFileInfo>
 
 
-namespace RF {
+namespace Renfeng {
 
     struct SimpleBlockFileCache {
         bool active;

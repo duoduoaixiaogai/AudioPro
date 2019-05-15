@@ -3,9 +3,13 @@
 #include "project.h"
 #include "DirManager.h"
 
-namespace RF {
+#include <QCoreApplication>
+
+namespace Renfeng {
     bool AudioApp::init() {
-        DirManager::SetTempDir(QString("C://Users//Administrator//AppData//Local//AudioPro//SessionData"));
+        DirManager::SetTempDir(QCoreApplication::applicationDirPath());
+        //DirManager::SetTempDir(QString("C://Users//49085//AppData//Local//AudioPro//SessionData"));
+        //DirManager::SetTempDir(QString("C://Users//Administrator//AppData//Local//AudioPro//SessionData"));
 
         PluginManager::get().initialize();
 

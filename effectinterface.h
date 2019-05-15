@@ -7,7 +7,7 @@
 class QMainWindow;
 class QDialog;
 
-namespace RF {
+namespace Renfeng {
     typedef enum EffectType : int {
         EffectTypeNone,
         EffectTypeHidden,
@@ -43,7 +43,7 @@ namespace RF {
     class EffectDefinitionInterface : public ComponentInterface {
     public:
         virtual ~EffectDefinitionInterface() {}
-        virtual EffectType getType() = 0;
+        virtual EffectType GetType() = 0;
         virtual EffectType getClassification() {return getType();}
         virtual ComponentInterfaceSymbol getFamilyId() = 0;
         virtual bool isInteractive() = 0;
@@ -62,6 +62,11 @@ namespace RF {
         virtual unsigned GetAudioInCount() = 0;
         virtual unsigned GetAudioOutCount() = 0;
         virtual bool ShowInterface(QMainWindow *parent, bool forceModal = false) = 0;
+      virtual void SetSampleRate(double rate) = 0;
+      virtual size_t SetBlockSize(size_t maxBlockSize) = 0;
+      virtual bool ProcessInitialize(sampleCount totalLen, ChannelNames chanMap = NULL) = 0;
+      virtual bool ProcessFinalize() /* noexcept */ = 0;
+      virtual sampleCount GetLatency() = 0;
     };
 }
 

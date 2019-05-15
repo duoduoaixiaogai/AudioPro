@@ -4,7 +4,7 @@
 #include <QPixmap>
 #include <QRect>
 
-namespace RF {
+namespace Renfeng {
     std::pair<QRect, bool> Overlay::getRectangle(QSize size) {
         auto result = doGetRectangle(size);
         return result;

@@ -1,7 +1,7 @@
 ﻿#include "SampleFormat.h"
 #include "Dither.h"
 
-namespace RF {
+namespace Renfeng {
     static DitherType gLowQualityDither = DitherType::none;
     static DitherType gHighQualityDither = DitherType::none;
     static Dither gDitherAlgorithm;

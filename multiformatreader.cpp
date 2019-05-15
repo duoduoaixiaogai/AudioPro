@@ -3,7 +3,7 @@
 #include <exception>
 #include <stdexcept>
 
-namespace RF {
+namespace Renfeng {
     MachineEndianness::MachineEndianness() {
         mFlag = MachineEndianness::Little;
     }

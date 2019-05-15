@@ -3,7 +3,7 @@
 
 #include "backedpanel.h"
 
-namespace RF {
+namespace Renfeng {
 
     class Overlay;
 

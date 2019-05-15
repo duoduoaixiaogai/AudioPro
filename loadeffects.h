@@ -8,7 +8,7 @@
 
 #include <QStringList>
 
-namespace RF {
+namespace Renfeng {
 
    class PluginManagerInterface;
    class ModuleManager;

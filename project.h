@@ -19,7 +19,7 @@ namespace Ui {
     class AudioProject;
 }
 
-namespace RF {
+namespace Renfeng {
 
     class TrackPanel;
     class CommandManager;

@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-namespace RF {
+namespace Renfeng {
     template <typename T>
     struct Destroyer {
        void operator () (T *p) const { if (p) p->deleteLater(); }

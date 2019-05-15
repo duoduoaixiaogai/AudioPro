@@ -9,7 +9,7 @@
 
 #include <QSize>
 
-namespace RF {
+namespace Renfeng {
 
     class WaveTrack;
     class TrackList;
@@ -116,6 +116,15 @@ namespace RF {
         virtual void SetSelected(bool s);
         bool IsLeader() const;
         bool IsSelectedLeader() const;
+        bool IsSelectedOrSyncLockSelected() const;
+        using Holder = std::shared_ptr<Track>;
+        virtual Holder Duplicate() const = 0;
+        template < typename R = void >
+           using Continuation = std::function< R() >;
+           using Fallthrough = Continuation<>;
+        virtual double GetStartTime() const = 0;
+        bool Any() const;
+        virtual ChannelType GetChannel() const { return mChannel;}
     protected:
         mutable std::shared_ptr<DirManager> mDirManager;
         double              mOffset;
@@ -547,7 +556,23 @@ namespace RF {
         {
             return Tracks< TrackType >( &Track::IsSelectedLeader );
         }
+        template<typename TrackKind>
+              TrackKind *Add( const std::shared_ptr< TrackKind > &t )
+                 { return static_cast< TrackKind* >( DoAdd( t ) ); }
+              template < typename TrackType = Track >
+                    auto Leaders()
+                       -> TrackIterRange< TrackType >
+                 {
+                    return Tracks< TrackType >( &Track::IsLeader );
+                 }
+                    template< typename TrackType >
+                          static auto Channels( TrackType *pTrack )
+                             -> TrackIterRange< TrackType >
+                       {
+                          return Channels_<TrackType>( pTrack->GetOwner()->FindLeader(pTrack) );
+                       }
     private:
+           Track *DoAdd(const std::shared_ptr<Track> &t);
         std::weak_ptr<TrackList> mSelf;
         template <
                 typename TrackType = Track,
@@ -602,6 +627,26 @@ namespace RF {
                 return q;
             }
         }
+        template< typename TrackType, typename InTrackType >
+              static TrackIterRange< TrackType >
+                 Channels_( TrackIter< InTrackType > iter1 )
+           {
+              // Assume iterator filters leader tracks
+              if (*iter1) {
+                 return {
+                    iter1.Filter( &Track::Any )
+                       .template Filter<TrackType>(),
+                    (++iter1).Filter( &Track::Any )
+                       .template Filter<TrackType>()
+                 };
+              }
+              else
+                 // empty range
+                 return {
+                    iter1.template Filter<TrackType>(),
+                    iter1.template Filter<TrackType>()
+                 };
+           }
     };
 }
 

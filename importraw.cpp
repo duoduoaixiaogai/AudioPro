@@ -10,7 +10,7 @@
 
 #include "track.h"
 
-namespace RF {
+namespace Renfeng {
     void importRaw(QWidget *parent, const QString &fileName,
                    TrackFactory *trackFactory, TrackHolders &outTracks) {
         outTracks.clear();

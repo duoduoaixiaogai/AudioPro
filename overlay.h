@@ -11,7 +11,7 @@ class QSize;
 class QPaintDevice;
 QT_END_MOC_NAMESPACE
 
-namespace RF {
+namespace Renfeng {
 
     class OverlayPanel;
 

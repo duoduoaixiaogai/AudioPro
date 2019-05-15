@@ -11,7 +11,7 @@
 #include <QVBoxLayout>
 #include <QFileDialog>
 
-namespace RF {
+namespace Renfeng {
     AProjectArray gAudioProjects;
 
     static AudioProject *gActiveProject;

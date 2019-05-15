@@ -14,7 +14,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-namespace RF {
+namespace Renfeng {
     // Constants for the noise shaping buffer
     const int Dither::BUF_MASK = 7;
     const int Dither::BUF_SIZE = 8;

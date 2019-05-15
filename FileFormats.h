@@ -14,7 +14,7 @@
 // enumerating headers
 //
 
-namespace RF {
+namespace Renfeng {
     /** @brief Get the number of container formats supported by libsndfile
  *
  * Uses SFC_GET_FORMAT_MAJOR_COUNT in sf_command interface */

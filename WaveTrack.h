@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace RF {
+namespace Renfeng {
 
     class WaveTrack final : public PlayableTrack {
 
@@ -23,6 +23,13 @@ namespace RF {
         double GetEndTime() const override;
         std::pair<float, float> GetMinMax(
               double t0, double t1, bool mayThrow = true) const;
+        double GetStartTime() const override;
+        sampleCount TimeToLongSamples(double t0) const;
+        ChannelType GetChannel() const override;
+        float GetPan() const;
+        bool Get(samplePtr buffer, sampleFormat format,
+                           sampleCount start, size_t len,
+                           fillFormat fill = fillZero, bool mayThrow = true, sampleCount * pNumCopied = nullptr) const;
     private:
         friend class TrackFactory;
         WaveTrack(const std::shared_ptr<DirManager> &projDirManager,
@@ -31,6 +38,7 @@ namespace RF {
          WaveClip* RightmostOrNewClip();
          WaveClip* CreateClip();
          TrackKind GetKind() const override { return TrackKind::Wave; }
+         Track::Holder Duplicate() const override;
     private:
         double mLegacyProjectFileOffset;
         int mAutoSaveIdent;

@@ -3,7 +3,7 @@
 #include "DirManager.h"
 #include "SimpleBlockFile.h"
 
-namespace RF {
+namespace Renfeng {
 
     inline bool Overflows(double numSamples)
     {
@@ -393,4 +393,44 @@ namespace RF {
        return rval;
     }
 
+
+    bool Sequence::Get(samplePtr buffer, sampleFormat format,
+       sampleCount start, size_t len, bool mayThrow) const
+    {
+       if (start == mNumSamples) {
+          return len == 0;
+       }
+
+       if (start < 0 || start + len > mNumSamples) {
+//          if (mayThrow)
+//             THROW_INCONSISTENCY_EXCEPTION;
+          ClearSamples( buffer, floatSample, 0, len );
+          return false;
+       }
+       int b = FindBlock(start);
+
+       return Get(b, buffer, format, start, len, mayThrow);
+    }
+
+    bool Sequence::Get(int b, samplePtr buffer, sampleFormat format,
+       sampleCount start, size_t len, bool mayThrow) const
+    {
+       bool result = true;
+       while (len) {
+          const SeqBlock &block = mBlock[b];
+          // start is in block
+          const auto bstart = (start - block.start).as_size_t();
+          // bstart is not more than block length
+          const auto blen = std::min(len, block.f->GetLength() - bstart);
+
+          if (! Read(buffer, format, block, bstart, blen, mayThrow) )
+             result = false;
+
+          len -= blen;
+          buffer += (blen * SAMPLE_SIZE(format));
+          b++;
+          start += blen;
+       }
+       return result;
+    }
 }

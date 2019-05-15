@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace RF {
+namespace Renfeng {
 
     class DirManager;
 
@@ -49,6 +49,8 @@ namespace RF {
         sampleCount GetNumSamples() const { return mNumSamples; }
         std::pair<float, float> GetMinMax(
               sampleCount start, sampleCount len, bool mayThrow) const;
+        bool Get(samplePtr buffer, sampleFormat format,
+                    sampleCount start, size_t len, bool mayThrow) const;
     private:
         static bool Read(samplePtr buffer, sampleFormat format,
                          const SeqBlock &b,
@@ -61,6 +63,8 @@ namespace RF {
          sampleCount numSamples, const QString whereStr,
          bool mayThrow = true);
         int FindBlock(sampleCount pos) const;
+        bool Get(int b, samplePtr buffer, sampleFormat format,
+              sampleCount start, size_t len, bool mayThrow) const;
     private:
 
         static size_t    sMaxDiskBlockSize;

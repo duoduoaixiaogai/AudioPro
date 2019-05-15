@@ -1,6 +1,6 @@
 ﻿#include "backedpanel.h"
 
-namespace RF {
+namespace Renfeng {
     BackedPanel::BackedPanel(QWidget *parent)
         : FrameWrapper (parent)
         , mBacking{std::make_unique<QPixmap>(1, 1)} {}

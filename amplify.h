@@ -5,10 +5,13 @@
 #include "componentinterface.h"
 #include "effectinterface.h"
 
-namespace RF {
+namespace Renfeng {
 #define AMPLIFY_PLUGIN_SYMBOL ComponentInterfaceSymbol(QString("Amplify"))
 
+  class AmplifyForm;
+
     class EffectAmplify final : public Effect {
+      Q_OBJECT
     public:
         EffectAmplify();
         virtual ~EffectAmplify();
@@ -23,11 +26,23 @@ namespace RF {
         unsigned GetAudioInCount() override;
         unsigned GetAudioOutCount() override;
         bool Init() override;
-        void PopulateOrExchange(QWidget *amplifyForm) override;
+        void PopulateOrExchange(QWidget *parent) override;
+    private:
+        void CheckClip(QWidget *amplifyForm);
+    private slots:
+        void OnAmpSlider(int value);
+        void OnAmpText(const QString &value);
+        void OnPeakText(const QString &value);
+        void apply();
     private:
        double mPeak;
        double mRatio;
        double mRatioClip;
+       double mAmp;
+       double mNewPeak;
+       bool mCanClip;
+
+        AmplifyForm *mForm;
     };
 }
 

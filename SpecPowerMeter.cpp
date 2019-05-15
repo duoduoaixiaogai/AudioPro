@@ -24,7 +24,7 @@ measurements in subbands or in the entire signal band.
 
 #include "FFT.h"
 
-namespace RF {
+namespace Renfeng {
     SpecPowerCalculation::SpecPowerCalculation(size_t sigLen)
         : mSigLen(sigLen)
         , mSigI{ sigLen, true }

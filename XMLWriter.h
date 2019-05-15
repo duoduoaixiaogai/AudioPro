@@ -1,7 +1,7 @@
 ﻿#ifndef XMLFILEWRITER_H
 #define XMLFILEWRITER_H
 
-namespace RF {
+namespace Renfeng {
      class XMLWriter {
 
      };

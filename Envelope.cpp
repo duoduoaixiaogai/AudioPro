@@ -1,6 +1,6 @@
 ﻿#include "Envelope.h"
 
-namespace RF {
+namespace Renfeng {
 
     Envelope::Envelope(bool exponential, double minValue, double maxValue, double defaultValue)
        : mDB(exponential)

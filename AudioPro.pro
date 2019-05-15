@@ -120,6 +120,8 @@ FORMS    += project.ui \
     amplifydialog.ui \
     amplifyform.ui
 
-LIBS += -Lf:/AudioPro/libsndfile/libs -llibsndfile
+LIBS += -L$(GITHUBPATH)/AudioPro/libsndfile/libs -llibsndfile
+#LIBS += -Lf:/AudioPro/libsndfile/libs -llibsndfile
 
-INCLUDEPATH = f:/AudioPro/libsndfile
+INCLUDEPATH = $(GITHUBPATH)/AudioPro/libsndfile
+#INCLUDEPATH = f:/AudioPro/libsndfile

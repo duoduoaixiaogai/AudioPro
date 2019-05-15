@@ -1,7 +1,7 @@
 ﻿#ifndef AUDIOIO_H
 #define AUDIOIO_H
 
-namespace RF {
+namespace Renfeng {
 
     void initAudioIO();
 

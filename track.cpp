@@ -1,6 +1,6 @@
 ﻿#include "track.h"
 
-namespace RF {
+namespace Renfeng {
 
     Track::Track(const std::shared_ptr<DirManager> &projDirManager)
         :  vrulerSize(36,0),
@@ -96,6 +96,9 @@ namespace RF {
     bool Track::IsSelectedLeader() const
        { return IsSelected() && IsLeader(); }
 
+    bool Track::IsSelectedOrSyncLockSelected() const
+       { return GetSelected() || false; }
+
     Track *Track::GetLink() const
     {
        auto pList = mList.lock();
@@ -121,4 +124,20 @@ namespace RF {
 
        return nullptr;
     }
+
+    Track *TrackList::DoAdd(const std::shared_ptr<Track> &t)
+    {
+       push_back(t);
+
+//       auto n = getPrev( getEnd() );
+//
+//       t->SetOwner(shared_from_this(), n);
+//       t->SetId( TrackId{ ++sCounter } );
+//       RecalcPositions(n);
+//       AdditionEvent(n);
+       return back().get();
+    }
+
+    bool Track::Any() const
+       { return true; }
 }

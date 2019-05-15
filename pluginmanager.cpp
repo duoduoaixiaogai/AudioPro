@@ -1,7 +1,7 @@
 ﻿#include "pluginmanager.h"
 #include "modulemanager.h"
 
-namespace RF {
+namespace Renfeng {
     // Plugindescriptor
     PluginDescriptor::PluginDescriptor() {
         mPluginType = PluginTypeNone;
