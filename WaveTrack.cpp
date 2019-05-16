@@ -315,4 +315,47 @@ namespace Renfeng {
           *pNumCopied = samplesCopied;
        return result;
     }
+
+    void WaveTrack::Set(samplePtr buffer, sampleFormat format,
+                        sampleCount start, size_t len)
+    // WEAK-GUARANTEE
+    {
+       for (const auto &clip: mClips)
+       {
+          auto clipStart = clip->GetStartSample();
+          auto clipEnd = clip->GetEndSample();
+
+          if (clipEnd > start && clipStart < start+len)
+          {
+             // Clip sample region and Get/Put sample region overlap
+             auto samplesToCopy =
+                std::min( start+len - clipStart, clip->GetNumSamples() );
+             auto startDelta = clipStart - start;
+             decltype(startDelta) inclipDelta = 0;
+             if (startDelta < 0)
+             {
+                inclipDelta = -startDelta; // make positive value
+                samplesToCopy -= inclipDelta;
+                // samplesToCopy is now either len or
+                //    (clipEnd - clipStart) - (start - clipStart)
+                //    == clipEnd - start > 0
+                // samplesToCopy is not more than len
+                //
+                startDelta = 0;
+                // startDelta is zero
+             }
+             else {
+                // startDelta is nonnegative and less than than len
+                // samplesToCopy is positive and not more than len
+             }
+
+             clip->SetSamples(
+                   (samplePtr)(((char*)buffer) +
+                               startDelta.as_size_t() *
+                               SAMPLE_SIZE(format)),
+                              format, inclipDelta, samplesToCopy.as_size_t() );
+             clip->MarkChanged();
+          }
+       }
+    }
 }
