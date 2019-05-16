@@ -37,6 +37,8 @@ namespace Renfeng {
         sampleCount GetNumSamples() const;
         bool GetSamples(samplePtr buffer, sampleFormat format,
                            sampleCount start, size_t len, bool mayThrow = true) const;
+        void SetSamples(samplePtr buffer, sampleFormat format,
+                           sampleCount start, size_t len);
     protected:
         std::unique_ptr<Sequence> mSequence;
         double mOffset { 0 };

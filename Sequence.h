@@ -51,6 +51,8 @@ namespace Renfeng {
               sampleCount start, sampleCount len, bool mayThrow) const;
         bool Get(samplePtr buffer, sampleFormat format,
                     sampleCount start, size_t len, bool mayThrow) const;
+        void SetSamples(samplePtr buffer, sampleFormat format,
+                    sampleCount start, sampleCount len);
     private:
         static bool Read(samplePtr buffer, sampleFormat format,
                          const SeqBlock &b,
@@ -65,6 +67,8 @@ namespace Renfeng {
         int FindBlock(sampleCount pos) const;
         bool Get(int b, samplePtr buffer, sampleFormat format,
               sampleCount start, size_t len, bool mayThrow) const;
+        void CommitChangesIfConsistent
+              (BlockArray &newBlock, sampleCount numSamples, const char *whereStr);
     private:
 
         static size_t    sMaxDiskBlockSize;

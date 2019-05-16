@@ -51,7 +51,7 @@ namespace Renfeng {
   public:
       Effect();
       virtual bool LoadFactoryDefaults();
-      virtual EffectType getType();
+//      virtual EffectType getType();
       virtual ComponentInterfaceSymbol getFamilyId();
       virtual bool isInteractive();
       virtual bool isDefault();
@@ -81,6 +81,7 @@ namespace Renfeng {
       bool ProcessFinalize() override;
       sampleCount GetLatency() override;
       EffectType GetType() override;
+      size_t ProcessBlock(float **inBlock, float **outBlock, size_t blockLen) override;
   protected:
       virtual bool Init();
       const TrackList *inputTracks() const { return mTracks; }
@@ -91,6 +92,7 @@ namespace Renfeng {
       void CopyInputTracks(bool allSyncLockSelected = false);
       void GetSamples(
             const WaveTrack *track, sampleCount *start, sampleCount *len);
+      void ReplaceProcessedTracks(const bool bGoodResult);
   private:
       void CountWaveTracks();
       bool ProcessTrack(int count,

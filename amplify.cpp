@@ -212,4 +212,14 @@ namespace Renfeng {
 
          dynamic_cast<QDialog*>(mForm->parent())->reject();
     }
+
+    size_t EffectAmplify::ProcessBlock(float **inBlock, float **outBlock, size_t blockLen)
+    {
+       for (decltype(blockLen) i = 0; i < blockLen; i++)
+       {
+          outBlock[0][i] = inBlock[0][i] * mRatio;
+       }
+
+       return blockLen;
+    }
 }

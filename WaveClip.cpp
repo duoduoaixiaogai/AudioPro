@@ -182,4 +182,15 @@ namespace Renfeng {
     {
        return mSequence->Get(buffer, format, start, len, mayThrow);
     }
+
+    void WaveClip::SetSamples(samplePtr buffer, sampleFormat format,
+                       sampleCount start, size_t len)
+    // STRONG-GUARANTEE
+    {
+       // use STRONG-GUARANTEE
+       mSequence->SetSamples(buffer, format, start, len);
+
+       // use NOFAIL-GUARANTEE
+       MarkChanged();
+    }
 }

@@ -29,7 +29,7 @@ bool Effect::LoadFactoryDefaults() {
     return true;
 }
 
-EffectType Effect::getType() {
+EffectType Effect::GetType() {
     return  EffectTypeNone;
 }
 
@@ -320,10 +320,10 @@ bool Effect::Process()
    {
       bGoodResult = ProcessPass();
       mPass = 2;
-      if (bGoodResult && InitPass2())
-      {
-         bGoodResult = ProcessPass();
-      }
+//      if (bGoodResult && InitPass2())
+//      {
+//         bGoodResult = ProcessPass();
+//      }
    }
 
    ReplaceProcessedTracks(bGoodResult);
@@ -497,11 +497,11 @@ bool Effect::ProcessPass()
             return;
 
          count++;
-      },
+      }/*,
       [&](Track *t) {
          if (t->IsSyncLockSelected())
             t->SyncLockAdjust(mT1, mT0 + mDuration);
-      }
+      }*/
    );
 
    if (bGoodResult && GetType() == EffectTypeGenerate)
@@ -707,12 +707,12 @@ bool Effect::ProcessTrack(int count,
       {
          processed = ProcessBlock(inBufPos.get(), outBufPos.get(), curBlockSize);
       }
-      catch( const AudacityException & WXUNUSED(e) )
-      {
-         // PRL: Bug 437:
-         // Pass this along to our application-level handler
-         throw;
-      }
+//      catch( const AudacityException & WXUNUSED(e) )
+//      {
+//         // PRL: Bug 437:
+//         // Pass this along to our application-level handler
+//         throw;
+//      }
       catch(...)
       {
          // PRL:
@@ -721,8 +721,8 @@ bool Effect::ProcessTrack(int count,
          // should now be treated the same way.
          return false;
       }
-      wxASSERT(processed == curBlockSize);
-      wxUnusedVar(processed);
+//      wxASSERT(processed == curBlockSize);
+//      wxUnusedVar(processed);
 
       // Bump to next input buffer position
       if (inputRemaining != 0)
@@ -828,23 +828,23 @@ bool Effect::ProcessTrack(int count,
 
       if (mNumChannels > 1)
       {
-         if (TrackGroupProgress(count,
-               (inLeftPos - leftStart).as_double() /
-               (isGenerator ? genLength : len).as_double()))
-         {
-            rc = false;
-            break;
-         }
+//         if (TrackGroupProgress(count,
+//               (inLeftPos - leftStart).as_double() /
+//               (isGenerator ? genLength : len).as_double()))
+//         {
+//            rc = false;
+//            break;
+//         }
       }
       else
       {
-         if (TrackProgress(count,
-               (inLeftPos - leftStart).as_double() /
-               (isGenerator ? genLength : len).as_double()))
-         {
-            rc = false;
-            break;
-         }
+//         if (TrackProgress(count,
+//               (inLeftPos - leftStart).as_double() /
+//               (isGenerator ? genLength : len).as_double()))
+//         {
+//            rc = false;
+//            break;
+//         }
       }
    }
 
@@ -876,40 +876,40 @@ bool Effect::ProcessTrack(int count,
       }
    }
 
-   if (rc && isGenerator)
-   {
-      AudacityProject *p = GetActiveProject();
-
-      // PRL:  this code was here and could not have been the right
-      // intent, mixing time and sampleCount values:
-      // StepTimeWarper warper(mT0 + genLength, genLength - (mT1 - mT0));
-
-      // This looks like what it should have been:
-      // StepTimeWarper warper(mT0 + genDur, genDur - (mT1 - mT0));
-      // But rather than fix it, I will just disable the use of it for now.
-      // The purpose was to remap split lines inside the selected region when
-      // a generator replaces it with sound of different duration.  But
-      // the "correct" version might have the effect of mapping some splits too
-      // far left, to before the selection.
-      // In practice the wrong version probably did nothing most of the time,
-      // because the cutoff time for the step time warper was 44100 times too
-      // far from mT0.
-
-      // Transfer the data from the temporary tracks to the actual ones
-      genLeft->Flush();
-      // mT1 gives us the NEW selection. We want to replace up to GetSel1().
-      auto &selectedRegion = p->GetViewInfo().selectedRegion;
-      left->ClearAndPaste(mT0,
-         selectedRegion.t1(), genLeft.get(), true, true,
-         nullptr /* &warper */);
-
-      if (genRight)
-      {
-         genRight->Flush();
-         right->ClearAndPaste(mT0, mT1, genRight.get(), true, true,
-                              nullptr /* &warper */);
-      }
-   }
+//   if (rc && isGenerator)
+//   {
+//      AudacityProject *p = GetActiveProject();
+//
+//      // PRL:  this code was here and could not have been the right
+//      // intent, mixing time and sampleCount values:
+//      // StepTimeWarper warper(mT0 + genLength, genLength - (mT1 - mT0));
+//
+//      // This looks like what it should have been:
+//      // StepTimeWarper warper(mT0 + genDur, genDur - (mT1 - mT0));
+//      // But rather than fix it, I will just disable the use of it for now.
+//      // The purpose was to remap split lines inside the selected region when
+//      // a generator replaces it with sound of different duration.  But
+//      // the "correct" version might have the effect of mapping some splits too
+//      // far left, to before the selection.
+//      // In practice the wrong version probably did nothing most of the time,
+//      // because the cutoff time for the step time warper was 44100 times too
+//      // far from mT0.
+//
+//      // Transfer the data from the temporary tracks to the actual ones
+//      genLeft->Flush();
+//      // mT1 gives us the NEW selection. We want to replace up to GetSel1().
+//      auto &selectedRegion = p->GetViewInfo().selectedRegion;
+//      left->ClearAndPaste(mT0,
+//         selectedRegion.t1(), genLeft.get(), true, true,
+//         nullptr /* &warper */);
+//
+//      if (genRight)
+//      {
+//         genRight->Flush();
+//         right->ClearAndPaste(mT0, mT1, genRight.get(), true, true,
+//                              nullptr /* &warper */);
+//      }
+//   }
 
    } // End scope for cleanup
    return rc;
@@ -943,6 +943,102 @@ sampleCount Effect::GetLatency()
    }
 
    return 0;
+}
+
+size_t Effect::ProcessBlock(float **inBlock, float **outBlock, size_t blockLen)
+{
+   if (mClient)
+   {
+      return mClient->ProcessBlock(inBlock, outBlock, blockLen);
+   }
+
+   return 0;
+}
+
+void Effect::ReplaceProcessedTracks(const bool bGoodResult)
+{
+//   if (!bGoodResult) {
+//      // Free resources, unless already freed.
+//
+//      // Processing failed or was cancelled so throw away the processed tracks.
+//      if ( mOutputTracks )
+//         mOutputTracks->Clear();
+//
+//      // Reset map
+//      mIMap.clear();
+//      mOMap.clear();
+//
+//      //TODO:undo the non-gui ODTask transfer
+//      return;
+//   }
+
+   // Assume resources need to be freed.
+//   wxASSERT(mOutputTracks); // Make sure we at least did the CopyInputTracks().
+
+   auto iterOut = mOutputTracks->ListOfTracks::begin(),
+      iterEnd = mOutputTracks->ListOfTracks::end();
+
+   size_t cnt = mOMap.size();
+   size_t i = 0;
+
+//   for (; iterOut != iterEnd; ++i) {
+//      ListOfTracks::value_type o = *iterOut;
+//      // If tracks were removed from mOutputTracks, then there will be
+//      // tracks in the map that must be removed from mTracks.
+//      while (i < cnt && mOMap[i] != o.get()) {
+//         const auto t = mIMap[i];
+//         if (t) {
+//            mTracks->Remove(t);
+//         }
+//         i++;
+//      }
+//
+//      // This should never happen
+//      wxASSERT(i < cnt);
+
+      // Remove the track from the output list...don't DELETE it
+      iterOut = mOutputTracks->erase(iterOut);
+
+      const auto  t = mIMap[i];
+      if (t == NULL)
+      {
+         // This track is a NEW addition to output tracks; add it to mTracks
+//         mTracks->Add( o );
+      }
+      else
+      {
+         // Replace mTracks entry with the NEW track
+//         mTracks->Replace(t, o);
+//
+//         // If the track is a wave track,
+//         // Swap the wavecache track the ondemand task uses, since now the NEW
+//         // one will be kept in the project
+//         if (ODManager::IsInstanceCreated()) {
+//            ODManager::Instance()->ReplaceWaveTrack( t, o.get() );
+//         }
+      }
+//   }
+
+   // If tracks were removed from mOutputTracks, then there may be tracks
+   // left at the end of the map that must be removed from mTracks.
+//   while (i < cnt) {
+//      const auto t = mIMap[i];
+//      if (t) {
+//         mTracks->Remove(t);
+//      }
+//      i++;
+//   }
+//
+//   // Reset map
+//   mIMap.clear();
+//   mOMap.clear();
+//
+//   // Make sure we processed everything
+//   wxASSERT(mOutputTracks->empty());
+//
+//   // The output list is no longer needed
+//   mOutputTracks.reset();
+//   nEffectsDone++;
 }
 
 }

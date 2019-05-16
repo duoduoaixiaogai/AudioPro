@@ -44,7 +44,7 @@ namespace Renfeng {
     public:
         virtual ~EffectDefinitionInterface() {}
         virtual EffectType GetType() = 0;
-        virtual EffectType getClassification() {return getType();}
+        virtual EffectType getClassification() {return GetType();}
         virtual ComponentInterfaceSymbol getFamilyId() = 0;
         virtual bool isInteractive() = 0;
         virtual bool isDefault() = 0;
@@ -67,6 +67,7 @@ namespace Renfeng {
       virtual bool ProcessInitialize(sampleCount totalLen, ChannelNames chanMap = NULL) = 0;
       virtual bool ProcessFinalize() /* noexcept */ = 0;
       virtual sampleCount GetLatency() = 0;
+      virtual size_t ProcessBlock(float **inBlock, float **outBlock, size_t blockLen) = 0;
     };
 }
 

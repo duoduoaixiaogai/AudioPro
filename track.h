@@ -99,6 +99,170 @@ namespace Renfeng {
     class Track : public CommonTrackPanelCell, public XMLTagHandler
     {
         friend class TrackList;
+    private:
+        // Variadic template specialized below
+        template< typename ...Params >
+        struct Executor;
+
+        // This specialization grounds the recursion.
+        template< typename R, typename ConcreteType >
+        struct Executor< R, ConcreteType >
+        {
+           enum : unsigned { SetUsed = 0 };
+           // No functions matched, so do nothing.
+           R operator () (const void *) { return R{}; }
+        };
+
+        // And another specialization is needed for void return.
+        template< typename ConcreteType >
+        struct Executor< void, ConcreteType >
+        {
+           enum : unsigned { SetUsed = 0 };
+           // No functions matched, so do nothing.
+           void operator () (const void *) { }
+        };
+
+        // This struct groups some helpers needed to define the recursive cases of
+        // Executor.
+        struct Dispatcher {
+           // This implements the specialization of Executor
+           // for the first recursive case.
+           template< typename R, typename ConcreteType,
+                     typename Function, typename ...Functions >
+           struct inapplicable
+           {
+              using Tail = Executor< R, ConcreteType, Functions... >;
+              enum : unsigned { SetUsed = Tail::SetUsed << 1 };
+
+              // Ignore the first, inapplicable function and try others.
+              R operator ()
+                 (const Track *pTrack,
+                  const Function &, const Functions &...functions)
+              { return Tail{}( pTrack, functions... ); }
+           };
+
+           // This implements the specialization of Executor
+           // for the second recursive case.
+           template< typename R, typename BaseClass, typename ConcreteType,
+                     typename Function, typename ...Functions >
+           struct applicable1
+           {
+              enum : unsigned { SetUsed = 1u };
+
+              // Ignore the remaining functions and call the first only.
+              R operator ()
+                 (const Track *pTrack,
+                  const Function &function, const Functions &...)
+              { return function( (BaseClass *)pTrack ); }
+           };
+
+           // This implements the specialization of Executor
+           // for the third recursive case.
+           template< typename R, typename BaseClass, typename ConcreteType,
+                     typename Function, typename ...Functions >
+           struct applicable2
+           {
+              using Tail = Executor< R, ConcreteType, Functions... >;
+              enum : unsigned { SetUsed = (Tail::SetUsed << 1) | 1u };
+
+              // Call the first function, which may request dispatch to the further
+              // functions by invoking a continuation.
+              R operator ()
+                 (const Track *pTrack, const Function &function,
+                  const Functions &...functions)
+              {
+                 auto continuation = Continuation<R>{ [&] {
+                    return Tail{}( pTrack, functions... );
+                 } };
+                 return function( (BaseClass *)pTrack, continuation );
+              }
+           };
+
+           // This variadic template chooses among the implementations above.
+           template< typename ... > struct Switch;
+
+           // Ground the recursion.
+           template< typename R, typename ConcreteType >
+           struct Switch< R, ConcreteType >
+           {
+              // No BaseClass of ConcreteType is acceptable to Function.
+              template< typename Function, typename ...Functions >
+                 static auto test()
+                    -> inapplicable< R, ConcreteType, Function, Functions... >;
+           };
+
+           // Recursive case.
+           template< typename R, typename ConcreteType,
+                     typename BaseClass, typename ...BaseClasses >
+           struct Switch< R, ConcreteType, BaseClass, BaseClasses... >
+           {
+              using Retry = Switch< R, ConcreteType, BaseClasses... >;
+
+              // If ConcreteType is not compatible with BaseClass, or if
+              // Function does not accept BaseClass, try other BaseClasses.
+              template< typename Function, typename ...Functions >
+                 static auto test( const void * )
+                    -> decltype( Retry::template test< Function, Functions... >() );
+
+              // If BaseClass is a base of ConcreteType and Function can take it,
+              // then overload resolution chooses this.
+              // If not, then the sfinae rule makes this overload unavailable.
+              template< typename Function, typename ...Functions >
+                 static auto test( std::true_type * )
+                    -> decltype(
+                       (void) std::declval<Function>()
+                          ( (BaseClass*)nullptr ),
+                       applicable1< R, BaseClass, ConcreteType,
+                                    Function, Functions... >{}
+                    );
+
+              // If BaseClass is a base of ConcreteType and Function can take it,
+              // with a second argument for a continuation,
+              // then overload resolution chooses this.
+              // If not, then the sfinae rule makes this overload unavailable.
+//              template< typename Function, typename ...Functions >
+//                 static auto test( std::true_type * )
+//                    -> decltype(
+//                       (void) std::declval<Function>()
+//                          ( (BaseClass*)nullptr,
+//                            std::declval< Continuation<R> >() ),
+//                       applicable2< R, BaseClass, ConcreteType,
+//                                    Function, Functions... >{}
+//                    );
+
+              static constexpr bool Compatible = CompatibleTrackKinds(
+                 track_kind<BaseClass>(), track_kind<ConcreteType>() );
+              template< typename Function, typename ...Functions >
+                 static auto test()
+                    -> decltype(
+                       test< Function, Functions... >(
+                          (std::integral_constant<bool, Compatible>*)nullptr) );
+           };
+        };
+
+        // This specialization is the recursive case for non-const tracks.
+//        template< typename R, typename ConcreteType,
+//                  typename Function, typename ...Functions >
+//        struct Executor< R, ConcreteType, Function, Functions... >
+//           : decltype(
+//              Dispatcher::Switch< R, ConcreteType,
+//                 Track, AudioTrack, PlayableTrack,
+//                 WaveTrack, LabelTrack, TimeTrack,
+//                 NoteTrack >
+//                    ::template test<Function, Functions... >())
+//        {};
+
+        // This specialization is the recursive case for const tracks.
+//        template< typename R, typename ConcreteType,
+//                  typename Function, typename ...Functions >
+//        struct Executor< R, const ConcreteType, Function, Functions... >
+//           : decltype(
+//              Dispatcher::Switch< R, ConcreteType,
+//                 const Track, const AudioTrack, const PlayableTrack,
+//                 const WaveTrack, const LabelTrack, const TimeTrack,
+//                 const NoteTrack >
+//                    ::template test<Function, Functions... >())
+//        {};
     public:
         Track(const std::shared_ptr<DirManager> &mDirManager);
         virtual ~ Track();
@@ -120,11 +284,52 @@ namespace Renfeng {
         using Holder = std::shared_ptr<Track>;
         virtual Holder Duplicate() const = 0;
         template < typename R = void >
-           using Continuation = std::function< R() >;
-           using Fallthrough = Continuation<>;
+        using Continuation = std::function< R() >;
+        using Fallthrough = Continuation<>;
         virtual double GetStartTime() const = 0;
         bool Any() const;
         virtual ChannelType GetChannel() const { return mChannel;}
+
+        template< typename R = void, typename ...Functions >
+           R TypeSwitch(const Functions &...functions)
+           {
+              using WaveExecutor =
+                 Executor< R, WaveTrack,  Functions... >;
+//              using NoteExecutor =
+//                 Executor< R, NoteTrack,  Functions... >;
+//              using LabelExecutor =
+//                 Executor< R, LabelTrack, Functions... >;
+//              using TimeExecutor =
+//                 Executor< R, TimeTrack,  Functions... >;
+              using DefaultExecutor =
+                 Executor< R, Track >;
+              enum { All = sizeof...( functions ) };
+
+//              static_assert(
+//                 (1u << All) - 1u ==
+//                    (WaveExecutor::SetUsed |
+//                     NoteExecutor::SetUsed |
+//                     LabelExecutor::SetUsed |
+//                     TimeExecutor::SetUsed),
+//                 "Uncallable case in Track::TypeSwitch"
+//              );
+
+              switch (GetKind()) {
+                 case TrackKind::Wave:
+                    return WaveExecutor{} (this,  functions...);
+        #if defined(USE_MIDI)
+                 case TrackKind::Note:
+                    return NoteExecutor{} (this,  functions...);
+        #endif
+//                 case TrackKind::Label:
+//                    return LabelExecutor{}(this, functions...);
+//                 case TrackKind::Time:
+//                    return TimeExecutor{} (this,  functions...);
+                 default:
+                    return DefaultExecutor{} (this);
+              }
+           }
+
     protected:
         mutable std::shared_ptr<DirManager> mDirManager;
         double              mOffset;
@@ -137,6 +342,7 @@ namespace Renfeng {
         std::weak_ptr<TrackList> mList;
         TrackNodePointer mNode{};
     private:
+        TrackNodePointer GetNode() const;
         bool           mSelected;
         virtual TrackKind GetKind() const { return TrackKind::None; }
         template<typename T>
@@ -154,6 +360,8 @@ namespace Renfeng {
         (const std::weak_ptr<TrackList> &list, TrackNodePointer node);
         bool GetLinked  () const { return mLinked; }
         void SetChannel(ChannelType c) { mChannel = c; }
+        std::shared_ptr<TrackList> GetOwner() const { return mList.lock(); }
+
     };
 
     class AudioTrack : public Track
@@ -313,12 +521,12 @@ namespace Renfeng {
         {
             // Maintain the class invariant
             do {
-                if (this->mIter == this->mBegin)
-                    // Go circularly
-                    this->mIter = this->mEnd;
-                else
-                    --this->mIter.first;
-            } while (this->mIter != this->mEnd && !this->valid() );
+                    if (this->mIter == this->mBegin)
+                        // Go circularly
+                        this->mIter = this->mEnd;
+                    else
+                        --this->mIter.first;
+                } while (this->mIter != this->mEnd && !this->valid() );
             return *this;
         }
 
@@ -408,13 +616,13 @@ namespace Renfeng {
             using Function = typename TrackIter<TrackType>::FunctionType;
             const auto &newPred = pred1
                     ? Function{ [=] (typename Function::argument_type track) {
-                return pred1(track) && pred2(track);
-            } }
+                    return pred1(track) && pred2(track);
+                } }
                     : Function{ pred2 };
             return {
-                this->first.Filter( newPred ),
-                        this->second.Filter( newPred )
-            };
+                    this->first.Filter( newPred ),
+                            this->second.Filter( newPred )
+                };
         }
 
         // Specify the added conjunct as a pointer to member function
@@ -448,9 +656,9 @@ namespace Renfeng {
         TrackIterRange< TrackType2 > Filter() const
         {
             return {
-                this-> first.template Filter< TrackType2 >(),
-                        this->second.template Filter< TrackType2 >()
-            };
+                    this-> first.template Filter< TrackType2 >(),
+                            this->second.template Filter< TrackType2 >()
+                };
         }
 
         TrackIterRange StartingWith( const Track *pTrack ) const
@@ -460,11 +668,11 @@ namespace Renfeng {
             // increment and decrement of each iterator in the NEW pair
             // has the expected behavior at boundaries of the range
             return {
-                { newBegin.mIter, newBegin.mIter,    this->second.mEnd,
-                            this->first.GetPredicate() },
-                { newBegin.mIter, this->second.mEnd, this->second.mEnd,
-                            this->second.GetPredicate() }
-            };
+                    { newBegin.mIter, newBegin.mIter,    this->second.mEnd,
+                                this->first.GetPredicate() },
+                    { newBegin.mIter, this->second.mEnd, this->second.mEnd,
+                                this->second.GetPredicate() }
+                };
         }
 
         TrackIterRange EndingAfter( const Track *pTrack ) const
@@ -474,11 +682,11 @@ namespace Renfeng {
             // increment and decrement of each iterator in the NEW pair
             // has the expected behavior at boundaries of the range
             return {
-                { this->first.mBegin, this->first.mIter, newEnd.mIter,
-                            this->first.GetPredicate() },
-                { this->first.mBegin, newEnd.mIter,      newEnd.mIter,
-                            this->second.GetPredicate() }
-            };
+                    { this->first.mBegin, this->first.mIter, newEnd.mIter,
+                                this->first.GetPredicate() },
+                    { this->first.mBegin, newEnd.mIter,      newEnd.mIter,
+                                this->second.GetPredicate() }
+                };
         }
 
         // Exclude one given track
@@ -502,10 +710,10 @@ namespace Renfeng {
         void VisitWhile(Flag &flag, const Functions &...functions)
         {
             if ( flag ) for (auto track : *this) {
-                track->TypeSwitch(functions...);
-                if (!flag)
-                    break;
-            }
+                    track->TypeSwitch(functions...);
+                    if (!flag)
+                        break;
+                }
         }
     };
 
@@ -536,12 +744,12 @@ namespace Renfeng {
         }
         void GroupChannels(
                 Track &track, size_t groupSize, bool resetChannels = true );
-//        template < typename TrackType = Track >
-//        auto Selected()
-//        -> TrackIterRange< TrackType >
-//        {
-//            return Tracks< TrackType >( &Track::IsSelected );
-//        }
+        //        template < typename TrackType = Track >
+        //        auto Selected()
+        //        -> TrackIterRange< TrackType >
+        //        {
+        //            return Tracks< TrackType >( &Track::IsSelected );
+        //        }
         template < typename TrackType = const Track >
         auto Selected() const
         -> typename std::enable_if< std::is_const<TrackType>::value,
@@ -557,22 +765,60 @@ namespace Renfeng {
             return Tracks< TrackType >( &Track::IsSelectedLeader );
         }
         template<typename TrackKind>
-              TrackKind *Add( const std::shared_ptr< TrackKind > &t )
-                 { return static_cast< TrackKind* >( DoAdd( t ) ); }
-              template < typename TrackType = Track >
-                    auto Leaders()
-                       -> TrackIterRange< TrackType >
-                 {
-                    return Tracks< TrackType >( &Track::IsLeader );
-                 }
-                    template< typename TrackType >
-                          static auto Channels( TrackType *pTrack )
-                             -> TrackIterRange< TrackType >
-                       {
-                          return Channels_<TrackType>( pTrack->GetOwner()->FindLeader(pTrack) );
-                       }
+        TrackKind *Add( const std::shared_ptr< TrackKind > &t )
+        { return static_cast< TrackKind* >( DoAdd( t ) ); }
+        template < typename TrackType = Track >
+        auto Leaders()
+        -> TrackIterRange< TrackType >
+        {
+            return Tracks< TrackType >( &Track::IsLeader );
+        }
+        template< typename TrackType >
+        static auto Channels( TrackType *pTrack )
+        -> TrackIterRange< TrackType >
+        {
+            return Channels_<TrackType>( pTrack->GetOwner()->FindLeader(pTrack) );
+        }
+        TrackIter< Track > FindLeader( Track *pTrack );
+        template < typename TrackType = Track >
+              auto Find(Track *pTrack)
+                 -> TrackIter< TrackType >
+           {
+              if (!pTrack || pTrack->GetOwner().get() != this)
+                 return EndIterator<TrackType>();
+              else
+                 return MakeTrackIterator<TrackType>( pTrack->GetNode() );
+           }
+
+           // Turn a pointer into an iterator (constant time).
+           template < typename TrackType = const Track >
+              auto Find(const Track *pTrack) const
+                 -> typename std::enable_if< std::is_const<TrackType>::value,
+                    TrackIter< TrackType >
+                 >::type
+           {
+              if (!pTrack || pTrack->GetOwner().get() != this)
+                 return EndIterator<TrackType>();
+              else
+                 return MakeTrackIterator<TrackType>( pTrack->GetNode() );
+           }
     private:
-           Track *DoAdd(const std::shared_ptr<Track> &t);
+              template < typename TrackType >
+                    TrackIter< TrackType >
+                       MakeTrackIterator( TrackNodePointer iter ) const
+                 {
+                    auto b = const_cast<TrackList*>(this)->getBegin();
+                    auto e = const_cast<TrackList*>(this)->getEnd();
+                    return { b, iter, e };
+                 }
+              template < typename TrackType >
+                    TrackIter< TrackType >
+                       EndIterator() const
+                 {
+                    auto e = const_cast<TrackList*>(this)->getEnd();
+                    return { e, e, e };
+                 }
+        Track *DoAdd(const std::shared_ptr<Track> &t);
         std::weak_ptr<TrackList> mSelf;
         template <
                 typename TrackType = Track,
@@ -604,10 +850,10 @@ namespace Renfeng {
                     || (p.second == &mPendingUpdates && p.first == mPendingUpdates.end()); }
         TrackNodePointer getEnd() const
         { return { const_cast<TrackList*>(this)->ListOfTracks::end(),
-                        const_cast<TrackList*>(this)}; }
+                            const_cast<TrackList*>(this)}; }
         TrackNodePointer getBegin() const
         { return { const_cast<TrackList*>(this)->ListOfTracks::begin(),
-                        const_cast<TrackList*>(this)}; }
+                            const_cast<TrackList*>(this)}; }
         ListOfTracks mPendingUpdates;
         TrackNodePointer getNext(TrackNodePointer p) const
         {
@@ -622,31 +868,31 @@ namespace Renfeng {
             if (p == getBegin())
                 return getEnd();
             else {
-                auto q = p;
-                --q.first;
-                return q;
-            }
+                    auto q = p;
+                    --q.first;
+                    return q;
+                }
         }
         template< typename TrackType, typename InTrackType >
-              static TrackIterRange< TrackType >
-                 Channels_( TrackIter< InTrackType > iter1 )
-           {
-              // Assume iterator filters leader tracks
-              if (*iter1) {
-                 return {
-                    iter1.Filter( &Track::Any )
-                       .template Filter<TrackType>(),
-                    (++iter1).Filter( &Track::Any )
-                       .template Filter<TrackType>()
-                 };
-              }
-              else
-                 // empty range
-                 return {
-                    iter1.template Filter<TrackType>(),
-                    iter1.template Filter<TrackType>()
-                 };
-           }
+        static TrackIterRange< TrackType >
+        Channels_( TrackIter< InTrackType > iter1 )
+        {
+            // Assume iterator filters leader tracks
+            if (*iter1) {
+                    return {
+                            iter1.Filter( &Track::Any )
+                                    .template Filter<TrackType>(),
+                                    (++iter1).Filter( &Track::Any )
+                                    .template Filter<TrackType>()
+                        };
+                }
+            else
+                // empty range
+                return {
+                        iter1.template Filter<TrackType>(),
+                                iter1.template Filter<TrackType>()
+                    };
+        }
     };
 }
 

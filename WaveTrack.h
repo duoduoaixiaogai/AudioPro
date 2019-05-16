@@ -30,6 +30,8 @@ namespace Renfeng {
         bool Get(samplePtr buffer, sampleFormat format,
                            sampleCount start, size_t len,
                            fillFormat fill = fillZero, bool mayThrow = true, sampleCount * pNumCopied = nullptr) const;
+        void Set(samplePtr buffer, sampleFormat format,
+                           sampleCount start, size_t len);
     private:
         friend class TrackFactory;
         WaveTrack(const std::shared_ptr<DirManager> &projDirManager,

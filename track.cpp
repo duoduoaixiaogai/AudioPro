@@ -140,4 +140,19 @@ namespace Renfeng {
 
     bool Track::Any() const
        { return true; }
+
+    auto TrackList::FindLeader( Track *pTrack )
+       -> TrackIter< Track >
+    {
+       auto iter = Find(pTrack);
+       while( *iter && ! ( *iter )->IsLeader() )
+          --iter;
+       return iter.Filter( &Track::IsLeader );
+    }
+
+    TrackNodePointer Track::GetNode() const
+    {
+//       wxASSERT(mList.lock() == NULL || this == mNode.first->get());
+       return mNode;
+    }
 }
