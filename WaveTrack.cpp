@@ -358,4 +358,9 @@ namespace Renfeng {
           }
        }
     }
+
+    double WaveTrack::GetOffset() const
+    {
+       return GetStartTime();
+    }
 }

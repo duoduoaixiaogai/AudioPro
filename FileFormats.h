@@ -66,7 +66,7 @@ namespace Renfeng {
  * format, then retreive the most common extension using SFC_GET_FORMAT_INFO.
  * @param format the libsndfile format to get the name for (only the container
  * part is used) */
-    //wxString sf_header_extension(int format);
+    QString sf_header_extension(int format);
     /** @brief Get the string name of the specified data encoding
  *
  * AND encoding_num with SF_FORMAT_SUBMASK to get only the data encoding and
@@ -89,7 +89,7 @@ namespace Renfeng {
     bool sf_subtype_more_than_16_bits(unsigned int format);
     bool sf_subtype_is_integer(unsigned int format);
 
-    //wxArrayString sf_get_all_extensions();
+    QStringList sf_get_all_extensions();
 
     QString sf_normalize_name(const char *name);
 

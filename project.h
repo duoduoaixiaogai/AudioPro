@@ -54,11 +54,14 @@ namespace Renfeng {
     private:
         void createMenus();
         void onImportRaw();
+        void onExportAudio();
         void doEffect();
+        void doExport(const QString& format);
 
     private slots:
         void menuClicked();
         void fileClicked();
+        void exportClicked();
     private:
         Ui::AudioProject *ui;
 

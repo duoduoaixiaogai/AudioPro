@@ -62,7 +62,9 @@ SOURCES += main.cpp\
     EffectManager.cpp \
     SelectedRegion.cpp \
     amplifydialog.cpp \
-    amplifyform.cpp
+    amplifyform.cpp \
+    export.cpp \
+    exportpcm.cpp
 
 HEADERS  += project.h \
     audioapp.h \
@@ -113,7 +115,9 @@ HEADERS  += project.h \
     EffectManager.h \
     SelectedRegion.h \
     amplifydialog.h \
-    amplifyform.h
+    amplifyform.h \
+    export.h \
+    exportpcm.h
 
 FORMS    += project.ui \
     importrawdialog.ui \

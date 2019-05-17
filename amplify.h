@@ -28,6 +28,7 @@ namespace Renfeng {
         bool Init() override;
         void PopulateOrExchange(QWidget *parent) override;
         size_t ProcessBlock(float **inBlock, float **outBlock, size_t blockLen) override;
+        EffectType GetType() override;
     private:
         void CheckClip(QWidget *amplifyForm);
     private slots:

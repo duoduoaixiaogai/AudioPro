@@ -1,9 +1,9 @@
 ﻿#ifndef WAVETRACK_H
 #define WAVETRACK_H
 
+#include "track.h"
 #include "SampleFormat.h"
 #include "WaveClip.h"
-#include "track.h"
 
 #include <vector>
 
@@ -32,6 +32,7 @@ namespace Renfeng {
                            fillFormat fill = fillZero, bool mayThrow = true, sampleCount * pNumCopied = nullptr) const;
         void Set(samplePtr buffer, sampleFormat format,
                            sampleCount start, size_t len);
+        double GetOffset() const override;
     private:
         friend class TrackFactory;
         WaveTrack(const std::shared_ptr<DirManager> &projDirManager,

@@ -222,4 +222,9 @@ namespace Renfeng {
 
        return blockLen;
     }
+
+    EffectType EffectAmplify::GetType()
+    {
+       return EffectTypeProcess;
+    }
 }

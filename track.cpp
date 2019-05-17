@@ -155,4 +155,67 @@ namespace Renfeng {
 //       wxASSERT(mList.lock() == NULL || this == mNode.first->get());
        return mNode;
     }
+
+    auto TrackList::Replace(Track * t, const ListOfTracks::value_type &with) ->
+       ListOfTracks::value_type
+    {
+       ListOfTracks::value_type holder;
+       if (t && with) {
+          auto node = t->GetNode();
+          t->SetOwner({}, {});
+
+          holder = *node.first;
+
+          Track *pTrack = with.get();
+          *node.first = with;
+//          pTrack->SetOwner(shared_from_this(), node);
+//          pTrack->SetId( t->GetId() );
+//          RecalcPositions(node);
+
+//          DeletionEvent();
+//          AdditionEvent(node);
+       }
+       return holder;
+    }
+
+    TrackNodePointer TrackList::Remove(Track *t)
+    {
+       auto result = getEnd();
+       if (t) {
+          auto node = t->GetNode();
+          t->SetOwner({}, {});
+
+          if ( !isNull( node ) ) {
+             ListOfTracks::value_type holder = *node.first;
+
+             result = getNext( node );
+             erase(node.first);
+//             if ( !isNull( result ) )
+//                RecalcPositions(result);
+//
+//             DeletionEvent();
+          }
+       }
+       return result;
+    }
+
+    inline double Accumulate
+          (const TrackList &list,
+           double (Track::*memfn)() const,
+           double ident,
+           const double &(*combine)(const double&, const double&))
+       {
+          // Default the answer to zero for empty list
+          if (list.empty()) {
+             return 0.0;
+          }
+
+          // Otherwise accumulate minimum or maximum of track values
+          return list.Any().accumulate(ident, combine, memfn);
+       }
+
+    double TrackList::GetEndTime() const
+    {
+       return Accumulate(*this, &Track::GetEndTime, -DBL_MAX, std::max);
+    }
 }

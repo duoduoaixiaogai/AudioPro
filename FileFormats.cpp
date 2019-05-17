@@ -29,6 +29,8 @@ information.
 
 #include "FileFormats.h"
 
+#include <QStringList>
+
 //#include "Internat.h"
 
 namespace Renfeng {
@@ -145,16 +147,16 @@ namespace Renfeng {
     //   return s;
     //}
 
-    //wxString sf_header_extension(int format)
-    //{
-    //   SF_FORMAT_INFO	format_info;
-    //
-    //   memset(&format_info, 0, sizeof(format_info));
-    //   format_info.format = (format & SF_FORMAT_TYPEMASK);
-    //   sf_command(NULL, SFC_GET_FORMAT_INFO, &format_info, sizeof(format_info));
-    //
-    //   return LAT1CTOWX(format_info.extension);
-    //}
+    QString sf_header_extension(int format)
+    {
+       SF_FORMAT_INFO	format_info;
+
+       memset(&format_info, 0, sizeof(format_info));
+       format_info.format = (format & SF_FORMAT_TYPEMASK);
+       sf_command(NULL, SFC_GET_FORMAT_INFO, &format_info, sizeof(format_info));
+
+       return format_info.extension;
+    }
 
     //wxString sf_encoding_name(int encoding)
     //{
@@ -206,37 +208,37 @@ namespace Renfeng {
                 subtype == SF_FORMAT_PCM_32);
     }
 
-    //wxArrayString sf_get_all_extensions()
-    //{
-    //   wxArrayString exts;
-    //   SF_FORMAT_INFO	format_info;
-    //   int count, k;
-    //
-    //   memset(&format_info, 0, sizeof(format_info));
-    //
-    //   sf_command(NULL, SFC_GET_FORMAT_MAJOR_COUNT,
-    //              &count, sizeof(count));
-    //
-    //   for(k=0; k<count; k++) {
-    //      format_info.format = k;
-    //      sf_command(NULL, SFC_GET_FORMAT_MAJOR,
-    //                 &format_info, sizeof (format_info)) ;
-    //
-    //      exts.Add(LAT1CTOWX(format_info.extension));
-    //   }
-    //
-    //   // Some other extensions that are often sound files
-    //   // but aren't included by libsndfile
-    //
-    //   exts.Add(wxT("aif")); // AIFF file with a DOS-style extension
-    //   exts.Add(wxT("ircam"));
-    //   exts.Add(wxT("snd"));
-    //   exts.Add(wxT("svx"));
-    //   exts.Add(wxT("svx8"));
-    //   exts.Add(wxT("sv16"));
-    //
-    //   return exts;
-    //}
+    QStringList sf_get_all_extensions()
+    {
+       QStringList exts;
+       SF_FORMAT_INFO	format_info;
+       int count, k;
+
+       memset(&format_info, 0, sizeof(format_info));
+
+       sf_command(NULL, SFC_GET_FORMAT_MAJOR_COUNT,
+                  &count, sizeof(count));
+
+       for(k=0; k<count; k++) {
+          format_info.format = k;
+          sf_command(NULL, SFC_GET_FORMAT_MAJOR,
+                     &format_info, sizeof (format_info)) ;
+
+          exts.push_back(format_info.extension);
+       }
+
+       // Some other extensions that are often sound files
+       // but aren't included by libsndfile
+
+       exts.push_back(("aif")); // AIFF file with a DOS-style extension
+       exts.push_back(("ircam"));
+       exts.push_back(("snd"));
+       exts.push_back(("svx"));
+       exts.push_back(("svx8"));
+       exts.push_back(("sv16"));
+
+       return exts;
+    }
 
     QString sf_normalize_name(const char *name)
     {
