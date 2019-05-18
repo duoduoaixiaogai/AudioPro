@@ -112,16 +112,16 @@ namespace Renfeng {
     // getting info about an actual SF format
     //
 
-    //wxString sf_header_name(int format)
-    //{
-    //   SF_FORMAT_INFO	format_info;
-    //
-    //   memset(&format_info, 0, sizeof(format_info));
-    //   format_info.format = (format & SF_FORMAT_TYPEMASK);
-    //   sf_command(NULL, SFC_GET_FORMAT_INFO, &format_info, sizeof(format_info));
-    //
-    //   return LAT1CTOWX(format_info.name);
-    //}
+    QString sf_header_name(int format)
+    {
+       SF_FORMAT_INFO	format_info;
+
+       memset(&format_info, 0, sizeof(format_info));
+       format_info.format = (format & SF_FORMAT_TYPEMASK);
+       sf_command(NULL, SFC_GET_FORMAT_INFO, &format_info, sizeof(format_info));
+
+       return format_info.name;
+    }
 
     //wxString sf_header_shortname(int format)
     //{

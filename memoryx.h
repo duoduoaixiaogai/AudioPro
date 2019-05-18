@@ -295,6 +295,14 @@ namespace Renfeng {
           return this->sum( std::mem_fn( pmf ) );
        }
     };
+
+    template< typename Container, typename Iterator, typename Function >
+    Container transform_range( Iterator first, Iterator last, Function &&fn )
+    {
+       Container result;
+       std::transform( first, last, std::back_inserter( result ), fn );
+       return result;
+    }
 }
 
 #endif

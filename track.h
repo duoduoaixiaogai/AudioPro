@@ -5,6 +5,7 @@
 #include "SampleFormat.h"
 #include "DirManager.h"
 #include "ViewInfo.h"
+#include "mix.h"
 
 #include <QSize>
 
@@ -95,7 +96,7 @@ namespace Renfeng {
 
 
 
-    class Track : public CommonTrackPanelCell, public XMLTagHandler
+    class Track : public CommonTrackPanelCell, public XMLTagHandler, public std::enable_shared_from_this<Track>
     {
         friend class TrackList;
 
@@ -168,6 +169,34 @@ namespace Renfeng {
         }
 
         virtual double GetOffset() const = 0;
+
+        template<typename Subclass = Track>
+           inline std::shared_ptr<Subclass> SharedPointer()
+           {
+              // shared_from_this is injected into class scope by base class
+              // std::enable_shared_from_this<Track>
+              return std::static_pointer_cast<Subclass>( shared_from_this() );
+           }
+
+           template<typename Subclass = const Track>
+           inline auto SharedPointer() const -> typename
+              std::enable_if<
+                 std::is_const<Subclass>::value, std::shared_ptr<Subclass>
+              >::type
+           {
+              // shared_from_this is injected into class scope by base class
+              // std::enable_shared_from_this<Track>
+              return std::static_pointer_cast<Subclass>( shared_from_this() );
+           }
+
+           // Static overloads of SharedPointer for when the pointer may be null
+           template<typename Subclass = Track>
+           static inline std::shared_ptr<Subclass> SharedPointer( Track *pTrack )
+           { return pTrack ? pTrack->SharedPointer<Subclass>() : nullptr; }
+
+           template<typename Subclass = const Track>
+           static inline std::shared_ptr<Subclass> SharedPointer( const Track *pTrack )
+           { return pTrack ? pTrack->SharedPointer<Subclass>() : nullptr; }
     private:
         // Variadic template specialized below
         template< typename ...Params >
@@ -823,6 +852,8 @@ namespace Renfeng {
         {
             return Tracks< TrackType >();
         }
+
+        WaveTrackConstArray GetWaveTrackConstArray(bool selectionOnly, bool includeMuted = true) const;
     private:
         template < typename TrackType >
         TrackIter< TrackType >

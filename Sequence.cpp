@@ -555,6 +555,12 @@ namespace Renfeng {
         CommitChangesIfConsistent( newBlock, mNumSamples, "SetSamples" );
     }
 
+    sampleCount Sequence::GetBlockStart(sampleCount position) const
+    {
+       int b = FindBlock(position);
+       return mBlock[b].start;
+    }
+
     void Sequence::CommitChangesIfConsistent
        (BlockArray &newBlock, sampleCount numSamples, const char* whereStr)
     {
@@ -565,5 +571,34 @@ namespace Renfeng {
 
        mBlock.swap(newBlock);
        mNumSamples = numSamples;
+    }
+
+    size_t Sequence::GetBestBlockSize(sampleCount start) const
+    {
+       // This method returns a nice number of samples you should try to grab in
+       // one big chunk in order to land on a block boundary, based on the starting
+       // sample.  The value returned will always be nonzero and will be no larger
+       // than the value of GetMaxBlockSize()
+
+       if (start < 0 || start >= mNumSamples)
+          return mMaxSamples;
+
+       int b = FindBlock(start);
+       int numBlocks = mBlock.size();
+
+       const SeqBlock &block = mBlock[b];
+       // start is in block:
+       auto result = (block.start + block.f->GetLength() - start).as_size_t();
+
+       decltype(result) length;
+       while(result < mMinSamples && b+1<numBlocks &&
+             ((length = mBlock[b+1].f->GetLength()) + result) <= mMaxSamples) {
+          b++;
+          result += length;
+       }
+
+//       wxASSERT(result > 0 && result <= mMaxSamples);
+
+       return result;
     }
 }

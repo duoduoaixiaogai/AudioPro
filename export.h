@@ -1,6 +1,9 @@
 #ifndef EXPORT_H
 #define EXPORT_H
 
+#include "progressdialog.h"
+#include "SampleFormat.h"
+
 #include <QString>
 #include <QStringList>
 
@@ -9,6 +12,12 @@
 namespace Renfeng {
 
   class AudioProject;
+  class MixerSpec;
+  class Tags;
+  class Mixer;
+  class WaveTrack;
+  class TimeTrack;
+  using WaveTrackConstArray = std::vector < std::shared_ptr < const WaveTrack > >;
 
   class FormatInfo {
   public:
@@ -47,6 +56,26 @@ namespace Renfeng {
       virtual QString GetExtension(int index = 0);
       virtual QStringList GetExtensions(int index = 0);
       virtual QString GetFormat(int index);
+
+      virtual ProgressResult Export(AudioProject *project,
+                             std::unique_ptr<ProgressDialog> &pDialog,
+                             unsigned channels,
+                             const QString &fName,
+                             bool selectedOnly,
+                             double t0,
+                             double t1,
+                             MixerSpec *mixerSpec = NULL,
+                             const Tags *metadata = NULL,
+                             int subformat = 0) = 0;
+      virtual int SetNumExportChannels() { return -1; }
+      virtual unsigned GetMaxChannels(int index);
+  protected:
+      std::unique_ptr<Mixer> CreateMixer(const WaveTrackConstArray &inputTracks,
+               const TimeTrack* timeTrack,
+               double startTime, double stopTime,
+               unsigned numOutChannels, size_t outBufferSize, bool outInterleaved,
+               double outRate, sampleFormat outFormat,
+               bool highQuality = true, MixerSpec *mixerSpec = NULL);
   private:
       std::vector<FormatInfo> mFormatInfos;
   };
@@ -64,6 +93,8 @@ namespace Renfeng {
   private:
       bool ExamineTracks();
       bool GetFilename();
+      bool ExportTracks();
+      bool CheckMix();
   private:
       QString mFormatName;
       ExportPluginArray mPlugins;
@@ -79,6 +110,8 @@ namespace Renfeng {
       int mFilterIndex;
       int mSubFormat;
       QString mFilename;
+      unsigned mChannels;
+      std::unique_ptr<MixerSpec> mMixerSpec;
   };
 }
 

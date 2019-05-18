@@ -6,6 +6,7 @@
 #include "ViewInfo.h"
 #include "importraw.h"
 #include "track.h"
+#include "tags.h"
 
 #include <QMainWindow>
 
@@ -24,7 +25,6 @@ namespace Renfeng {
     class TrackPanel;
     class CommandManager;
     class TrackFactory;
-
 
     class AudioProject : public QMainWindow
     {
@@ -51,6 +51,8 @@ namespace Renfeng {
         const TrackList *GetTracks() const { return mTracks.get(); }
         size_t getTrackCount() const { return GetTracks()->size(); }
         SelectedRegion &GetSelection() { return mViewInfo.selectedRegion; }
+
+        const Tags *GetTags();
     private:
         void createMenus();
         void onImportRaw();
@@ -73,6 +75,7 @@ namespace Renfeng {
         sampleFormat mDefaultFormat;
         double mRate;
         std::shared_ptr<DirManager> mDirManager;
+        std::shared_ptr<Tags> mTags;
     };
 
     AudioProject* GetActiveProject();

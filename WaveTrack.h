@@ -33,6 +33,11 @@ namespace Renfeng {
         void Set(samplePtr buffer, sampleFormat format,
                            sampleCount start, size_t len);
         double GetOffset() const override;
+        sampleCount GetBlockStart(sampleCount t) const;
+        size_t GetBestBlockSize(sampleCount t) const;
+        void GetEnvelopeValues(double *buffer, size_t bufferLen,
+                                 double t0) const;
+        float GetChannelGain(int channel) const;
     private:
         friend class TrackFactory;
         WaveTrack(const std::shared_ptr<DirManager> &projDirManager,
@@ -63,6 +68,61 @@ namespace Renfeng {
 
         mutable int   mLastScaleType;
         mutable int           mLastdBRange;
+    };
+
+    class WaveTrackCache {
+    public:
+       WaveTrackCache()
+          : mBufferSize(0)
+          , mOverlapBuffer()
+          , mNValidBuffers(0)
+       {
+       }
+
+       explicit WaveTrackCache(const std::shared_ptr<const WaveTrack> &pTrack)
+          : mBufferSize(0)
+          , mOverlapBuffer()
+          , mNValidBuffers(0)
+       {
+          SetTrack(pTrack);
+       }
+       ~WaveTrackCache();
+
+       const std::shared_ptr<const WaveTrack>& GetTrack() const { return mPTrack; }
+       void SetTrack(const std::shared_ptr<const WaveTrack> &pTrack);
+
+       // Uses fillZero always
+       // Returns null on failure
+       // Returned pointer may be invalidated if Get is called again
+       // Do not DELETE[] the pointer
+       constSamplePtr Get(
+          sampleFormat format, sampleCount start, size_t len, bool mayThrow);
+
+    private:
+       void Free();
+
+       struct Buffer {
+          Floats data;
+          sampleCount start;
+          sampleCount len;
+
+          Buffer() : start(0), len(0) {}
+          void Free() { data.reset(); start = 0; len = 0; }
+          sampleCount end() const { return start + len; }
+
+          void swap ( Buffer &other )
+          {
+             data .swap ( other.data );
+             std::swap( start, other.start );
+             std::swap( len, other.len );
+          }
+       };
+
+       std::shared_ptr<const WaveTrack> mPTrack;
+       size_t mBufferSize;
+       Buffer mBuffers[2];
+       GrowableSampleBuffer mOverlapBuffer;
+       int mNValidBuffers;
     };
 }
 

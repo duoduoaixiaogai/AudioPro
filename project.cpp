@@ -54,6 +54,8 @@ namespace Renfeng {
   {
       ui->setupUi(this);
 
+      mTags = std::make_shared<Tags>();
+
       mTracks = TrackList::Create();
 
       mDirManager = std::make_shared<DirManager>();
@@ -214,5 +216,10 @@ namespace Renfeng {
 
       e.SetDefaultFormat(format);
       e.Process(this, false, t0, t1);
+  }
+
+  const Tags *AudioProject::GetTags()
+  {
+     return mTags.get();
   }
 }

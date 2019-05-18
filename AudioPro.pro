@@ -64,7 +64,10 @@ SOURCES += main.cpp\
     amplifydialog.cpp \
     amplifyform.cpp \
     export.cpp \
-    exportpcm.cpp
+    exportpcm.cpp \
+    mix.cpp \
+    tags.cpp \
+    resample.cpp
 
 HEADERS  += project.h \
     audioapp.h \
@@ -117,7 +120,12 @@ HEADERS  += project.h \
     amplifydialog.h \
     amplifyform.h \
     export.h \
-    exportpcm.h
+    exportpcm.h \
+    mix.h \
+    tags.h \
+    progressdialog.h \
+    timetrack.h \
+    resample.h
 
 FORMS    += project.ui \
     importrawdialog.ui \

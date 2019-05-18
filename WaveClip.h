@@ -39,6 +39,7 @@ namespace Renfeng {
                            sampleCount start, size_t len, bool mayThrow = true) const;
         void SetSamples(samplePtr buffer, sampleFormat format,
                            sampleCount start, size_t len);
+        Envelope* GetEnvelope() { return mEnvelope.get(); }
     protected:
         std::unique_ptr<Sequence> mSequence;
         double mOffset { 0 };

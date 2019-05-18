@@ -1,4 +1,5 @@
 ﻿#include "track.h"
+#include "WaveTrack.h"
 
 namespace Renfeng {
 
@@ -217,5 +218,28 @@ namespace Renfeng {
     double TrackList::GetEndTime() const
     {
        return Accumulate(*this, &Track::GetEndTime, -DBL_MAX, std::max);
+    }
+
+    template<typename Array, typename TrackRange>
+       Array GetTypedTracks(const TrackRange &trackRange,
+                           bool selectionOnly, bool includeMuted)
+       {
+          using Type = typename std::remove_reference<
+             decltype( *std::declval<Array>()[0] )
+          >::type;
+          auto subRange =
+             trackRange.template Filter<Type>();
+          if ( selectionOnly )
+             subRange = subRange + &Track::IsSelected;
+          if ( ! includeMuted )
+             subRange = subRange - &Type::GetMute;
+          return transform_range<Array>( subRange.begin(), subRange.end(),
+             []( Type *t ){ return t->template SharedPointer<Type>(); }
+          );
+       }
+
+    WaveTrackConstArray TrackList::GetWaveTrackConstArray(bool selectionOnly, bool includeMuted) const
+    {
+       return GetTypedTracks<WaveTrackConstArray>(Any(), selectionOnly, includeMuted);
     }
 }

@@ -52,7 +52,7 @@ namespace Renfeng {
  * then use SFC_GET_FORMAT_INFO to get the description
  * @param format the libsndfile format to get the name for (only the container
  * part is used) */
-    //wxString sf_header_name(int format);
+    QString sf_header_name(int format);
     /** @brief Get an abbreviated form of the string name of the specified format
  *
  * Do sf_header_name() then truncate the string at the first space in the name

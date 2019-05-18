@@ -2,6 +2,7 @@
 #include "exportpcm.h"
 #include "project.h"
 #include "WaveTrack.h"
+#include "mix.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -112,6 +113,14 @@ namespace Renfeng {
         if (!GetFilename()) {
                 return false;
             }
+
+        if (!CheckMix()) {
+                return false;
+            }
+
+        bool success = ExportTracks();
+
+        return success;
     }
 
     bool Exporter::ExamineTracks()
@@ -217,10 +226,32 @@ namespace Renfeng {
                 mSubFormat = 0;
             }
 
-//        maskString.chop(1);
+        //        maskString.chop(1);
         QString defext = mPlugins[mFormat]->GetExtension(mSubFormat).toLower();
 
         mFilename = QFileDialog::getSaveFileName(nullptr, QString("Please save you file"), QString("D://"), maskString);
+
+        {
+            int c = 0;
+            int i = -1;
+            for (const auto &pPlugin : mPlugins)
+                {
+                    ++i;
+                    for (int j = 0; j < pPlugin->GetFormatCount(); j++)
+                        {
+                            if (mFilterIndex == c)
+                                {
+                                    mFormat = i;
+                                    mSubFormat = j;
+                                }
+                            c++;
+                        }
+                }
+        }
+
+        //        QFileInfo fileInfo(mFilename);
+        //        QString ext = fileInfo.suffix();
+        //        defext = mPlugins[mFormat]->GetExtension(mSubFormat).toLower();
 
         return true;
     }
@@ -261,5 +292,69 @@ namespace Renfeng {
     QString ExportPlugin::GetFormat(int index)
     {
         return mFormatInfos[index].mFormat;
+    }
+
+    bool Exporter::ExportTracks()
+    {
+
+        std::unique_ptr<ProgressDialog> pDialog;
+        auto result = mPlugins[mFormat]->Export(mProject,
+                                                pDialog,
+                                                mChannels,
+                                                mFilename,
+                                                mSelectedOnly,
+                                                mT0,
+                                                mT1,
+                                                mMixerSpec.get(),
+                                                NULL,
+                                                mSubFormat);
+
+        bool success =
+                result == ProgressResult::Success || result == ProgressResult::Stopped;
+
+        return success;
+    }
+
+    std::unique_ptr<Mixer> ExportPlugin::CreateMixer(const WaveTrackConstArray &inputTracks,
+                                                     const TimeTrack* timeTrack,
+                                                     double startTime, double stopTime,
+                                                     unsigned numOutChannels, size_t outBufferSize, bool outInterleaved,
+                                                     double outRate, sampleFormat outFormat,
+                                                     bool highQuality, MixerSpec *mixerSpec)
+    {
+        return std::make_unique<Mixer>(inputTracks,
+                                       // Throw, to stop exporting, if read fails:
+                                       true,
+                                       Mixer::WarpOptions(timeTrack),
+                                       startTime, stopTime,
+                                       numOutChannels, outBufferSize, outInterleaved,
+                                       outRate, outFormat,
+                                       highQuality, mixerSpec);
+    }
+
+    bool Exporter::CheckMix()
+    {
+        mMixerSpec.reset();
+
+        int downMix = 1;
+        int exportedChannels = mPlugins[mFormat]->SetNumExportChannels();
+
+        if (downMix) {
+                if (mNumRight > 0 || mNumLeft > 0) {
+                        mChannels = 2;
+                    }
+                else {
+                        mChannels = 1;
+                    }
+                mChannels = std::min(mChannels,
+                                     mPlugins[mFormat]->GetMaxChannels(mSubFormat));
+            }
+
+        return true;
+    }
+
+    unsigned ExportPlugin::GetMaxChannels(int index)
+    {
+        return mFormatInfos[index].mMaxChannels;
     }
 }

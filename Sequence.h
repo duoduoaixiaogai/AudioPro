@@ -53,6 +53,8 @@ namespace Renfeng {
                     sampleCount start, size_t len, bool mayThrow) const;
         void SetSamples(samplePtr buffer, sampleFormat format,
                     sampleCount start, sampleCount len);
+        sampleCount GetBlockStart(sampleCount position) const;
+        size_t GetBestBlockSize(sampleCount start) const;
     private:
         static bool Read(samplePtr buffer, sampleFormat format,
                          const SeqBlock &b,
