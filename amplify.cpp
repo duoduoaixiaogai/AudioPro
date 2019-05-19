@@ -31,9 +31,6 @@ namespace Renfeng {
         //for (auto t : inputTracks()->Selected< const WaveTrack >())
         for (auto t : inputTracks()->Selected< const WaveTrack >())
             {
-                // test
-//                mT1 = 42.956916099773245;
-
                 auto pair = t->GetMinMax(mT0, mT1); // may throw
                 const float min = pair.first, max = pair.second;
                 float newpeak = (fabs(min) > fabs(max) ? fabs(min) : fabs(max));

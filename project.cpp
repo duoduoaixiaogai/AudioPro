@@ -184,7 +184,11 @@ namespace Renfeng {
           }
       auto tracks = GetTracks();
       auto rate = GetRate();
+      //     这里和原始代码有些出入 自己改了一下
       auto &selectedRegion = GetSelection();
+      auto maxEnd = tracks->GetEndTime();
+      selectedRegion.setT1(maxEnd);
+
       const PluginDescriptor *plug = PluginManager::get().getPlugin(pluginID);
       if (!plug)
           return;
@@ -220,6 +224,6 @@ namespace Renfeng {
 
   const Tags *AudioProject::GetTags()
   {
-     return mTags.get();
+      return mTags.get();
   }
 }
