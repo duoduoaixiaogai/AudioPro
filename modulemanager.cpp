@@ -4,7 +4,7 @@
 
 #include <QVector>
 
-namespace RF {
+namespace Renfeng {
 
     std::unique_ptr<ModuleManager> ModuleManager::mInstance{};
 

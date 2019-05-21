@@ -9,7 +9,7 @@ namespace Ui {
     class ImportRawDialog;
 }
 
-namespace RF {
+namespace Renfeng {
     class ImportRawDialog : public QDialog
     {
         Q_OBJECT

@@ -3,7 +3,7 @@
 
 #include "effect.h"
 
-namespace RF {
+namespace Renfeng {
 #define NOISEREDUCTION_PLUGIN_SYMBOL ComponentInterfaceSymbol(QString("Noise Reduction"))
 
     class EffectNoiseReduction final : public Effect {

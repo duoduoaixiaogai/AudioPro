@@ -1,6 +1,7 @@
 ﻿#include "track.h"
+#include "WaveTrack.h"
 
-namespace RF {
+namespace Renfeng {
 
     Track::Track(const std::shared_ptr<DirManager> &projDirManager)
         :  vrulerSize(36,0),
@@ -96,6 +97,9 @@ namespace RF {
     bool Track::IsSelectedLeader() const
        { return IsSelected() && IsLeader(); }
 
+    bool Track::IsSelectedOrSyncLockSelected() const
+       { return GetSelected() || false; }
+
     Track *Track::GetLink() const
     {
        auto pList = mList.lock();
@@ -120,5 +124,122 @@ namespace RF {
        }
 
        return nullptr;
+    }
+
+    Track *TrackList::DoAdd(const std::shared_ptr<Track> &t)
+    {
+       push_back(t);
+
+//       auto n = getPrev( getEnd() );
+//
+//       t->SetOwner(shared_from_this(), n);
+//       t->SetId( TrackId{ ++sCounter } );
+//       RecalcPositions(n);
+//       AdditionEvent(n);
+       return back().get();
+    }
+
+    bool Track::Any() const
+       { return true; }
+
+    auto TrackList::FindLeader( Track *pTrack )
+       -> TrackIter< Track >
+    {
+       auto iter = Find(pTrack);
+       while( *iter && ! ( *iter )->IsLeader() )
+          --iter;
+       return iter.Filter( &Track::IsLeader );
+    }
+
+    TrackNodePointer Track::GetNode() const
+    {
+//       wxASSERT(mList.lock() == NULL || this == mNode.first->get());
+       return mNode;
+    }
+
+    auto TrackList::Replace(Track * t, const ListOfTracks::value_type &with) ->
+       ListOfTracks::value_type
+    {
+       ListOfTracks::value_type holder;
+       if (t && with) {
+          auto node = t->GetNode();
+          t->SetOwner({}, {});
+
+          holder = *node.first;
+
+          Track *pTrack = with.get();
+          *node.first = with;
+//          pTrack->SetOwner(shared_from_this(), node);
+//          pTrack->SetId( t->GetId() );
+//          RecalcPositions(node);
+
+//          DeletionEvent();
+//          AdditionEvent(node);
+       }
+       return holder;
+    }
+
+    TrackNodePointer TrackList::Remove(Track *t)
+    {
+       auto result = getEnd();
+       if (t) {
+          auto node = t->GetNode();
+          t->SetOwner({}, {});
+
+          if ( !isNull( node ) ) {
+             ListOfTracks::value_type holder = *node.first;
+
+             result = getNext( node );
+             erase(node.first);
+//             if ( !isNull( result ) )
+//                RecalcPositions(result);
+//
+//             DeletionEvent();
+          }
+       }
+       return result;
+    }
+
+    inline double Accumulate
+          (const TrackList &list,
+           double (Track::*memfn)() const,
+           double ident,
+           const double &(*combine)(const double&, const double&))
+       {
+          // Default the answer to zero for empty list
+          if (list.empty()) {
+             return 0.0;
+          }
+
+          // Otherwise accumulate minimum or maximum of track values
+          return list.Any().accumulate(ident, combine, memfn);
+       }
+
+    double TrackList::GetEndTime() const
+    {
+       return Accumulate(*this, &Track::GetEndTime, -DBL_MAX, std::max);
+    }
+
+    template<typename Array, typename TrackRange>
+       Array GetTypedTracks(const TrackRange &trackRange,
+                           bool selectionOnly, bool includeMuted)
+       {
+          using Type = typename std::remove_reference<
+             decltype( *std::declval<Array>()[0] )
+          >::type;
+          auto subRange =
+             trackRange.template Filter<Type>();
+          if ( selectionOnly )
+             subRange = subRange + &Track::IsSelected;
+          if ( ! includeMuted )
+             subRange = subRange - &Type::GetMute;
+          return transform_range<Array>( subRange.begin(), subRange.end(),
+             []( Type *t ){ return t->template SharedPointer<Type>(); }
+          );
+       }
+
+    WaveTrackConstArray TrackList::GetWaveTrackConstArray(bool selectionOnly, bool includeMuted) const
+    {
+       return GetTypedTracks<WaveTrackConstArray>(Any(), selectionOnly, includeMuted);
     }
 }

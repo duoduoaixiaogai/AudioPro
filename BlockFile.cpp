@@ -3,7 +3,7 @@
 #include "sndfile.h"
 #include "FileFormats.h"
 
-namespace RF {
+namespace Renfeng {
     unsigned long BlockFile::gBlockFileDestructionCount { 0 };
 
     static const int headerTagLen = 20;

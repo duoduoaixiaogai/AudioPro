@@ -5,7 +5,7 @@
 
 #include "vector"
 
-namespace RF {
+namespace Renfeng {
 
     class EnvPoint final : public XMLTagHandler {
     public:
@@ -26,6 +26,7 @@ namespace RF {
         void SetOffset(double newOffset);
         void SetTrackLen( double trackLen, double sampleDur = 0.0 );
         double ClampValue(double value) { return std::max(mMinValue, std::min(mMaxValue, value)); }
+        void GetValues(double *buffer, int len, double t0, double tstep) const;
     private:
         double GetValueRelative(double t, bool leftLimit = false) const;
         void GetValuesRelative

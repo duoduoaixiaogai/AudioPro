@@ -7,188 +7,223 @@
 #include "panelwrapper.h"
 #include "pluginmanager.h"
 #include "EffectManager.h"
+#include "export.h"
 
 #include <QVBoxLayout>
 #include <QFileDialog>
 
-namespace RF {
-    AProjectArray gAudioProjects;
+namespace Renfeng {
+  AProjectArray gAudioProjects;
 
-    static AudioProject *gActiveProject;
-    static void setActiveProject(AudioProject *project);
+  static AudioProject *gActiveProject;
+  static void setActiveProject(AudioProject *project);
 
-    void setActiveProject(AudioProject *project) {
-        gActiveProject = project;
+  void setActiveProject(AudioProject *project) {
+      gActiveProject = project;
 
-    }
+  }
 
-    AudioProject* GetActiveProject() {
-        return gActiveProject;
-    }
+  AudioProject* GetActiveProject() {
+      return gActiveProject;
+  }
 
-    AudioProject* createNewAudioProject() {
-        gAudioProjects.push_back(AProjectHolder{
-                                     new AudioProject(
-                                     nullptr, -1,
-                                     QPoint(100, 100),
-                                     QSize(600, 400)
-                                     ),
-                                     Destroyer<AudioProject>{}
-                                 });
-        const auto p = gAudioProjects.back().get();
+  AudioProject* createNewAudioProject() {
+      gAudioProjects.push_back(AProjectHolder{
+                                   new AudioProject(
+                                   nullptr, -1,
+                                   QPoint(100, 100),
+                                   QSize(600, 400)
+                                   ),
+                                   Destroyer<AudioProject>{}
+                               });
+      const auto p = gAudioProjects.back().get();
 
-        //gAudioIO->setListener(p);
+      //gAudioIO->setListener(p);
 
-        setActiveProject(p);
+      setActiveProject(p);
 
-        p->show();
+      p->show();
 
-        return p;
-    }
+      return p;
+  }
 
-    AudioProject::AudioProject(QWidget *parent, int id, const QPoint &pos, const QSize &size) :
-        QMainWindow(parent), /*(mCommandManager(std::make_unique<CommandManager>),*/
-        mViewInfo(0.0, 1.0, ZoomInfo::GetDefaultZoom()),
-        ui(new Ui::AudioProject)
-    {
-        ui->setupUi(this);
+  AudioProject::AudioProject(QWidget *parent, int id, const QPoint &pos, const QSize &size) :
+      QMainWindow(parent), /*(mCommandManager(std::make_unique<CommandManager>),*/
+      mViewInfo(0.0, 1.0, ZoomInfo::GetDefaultZoom()),
+      ui(new Ui::AudioProject)
+  {
+      ui->setupUi(this);
 
-        mTracks = TrackList::Create();
+      mTags = std::make_shared<Tags>();
 
-        mDirManager = std::make_shared<DirManager>();
+      mTracks = TrackList::Create();
 
-        mTrackFactory.reset(new TrackFactory{ mDirManager, &mViewInfo });
-        //        QVBoxLayout *vLayout = new QVBoxLayout;
-        //        QHBoxLayout *hLayout = new QHBoxLayout;
-        //        setLayout(vLayout);
-        //        vLayout->addLayout(hLayout);
-        //
-        //        mMainFrame = new FrameWrapper(this);
-        //        hLayout->addWidget(mMainFrame);
-        //
-        //        QVBoxLayout *v1Layout = new QVBoxLayout;
-        //        mMainFrame->setLayout(v1Layout);
+      mDirManager = std::make_shared<DirManager>();
 
-        //mTrackPanel = new TrackPanel(mMainFrame, );
-        createMenus();
+      mTrackFactory.reset(new TrackFactory{ mDirManager, &mViewInfo });
+      //        QVBoxLayout *vLayout = new QVBoxLayout;
+      //        QHBoxLayout *hLayout = new QHBoxLayout;
+      //        setLayout(vLayout);
+      //        vLayout->addLayout(hLayout);
+      //
+      //        mMainFrame = new FrameWrapper(this);
+      //        hLayout->addWidget(mMainFrame);
+      //
+      //        QVBoxLayout *v1Layout = new QVBoxLayout;
+      //        mMainFrame->setLayout(v1Layout);
 
-    }
+      //mTrackPanel = new TrackPanel(mMainFrame, );
+      createMenus();
 
-    AudioProject::~AudioProject()
-    {
-        delete ui;
-    }
+  }
 
-    void AudioProject::createMenus() {
-        QMenu *effectMenu = ui->menuBar->addMenu(QString("Effect"));
-        QAction *amplifyAct = effectMenu->addAction(QString("Amplify"));
-        amplifyAct->setObjectName(QString("Amplify"));
-        QAction *noiseRedAct = effectMenu->addAction(QString("Noise Reduction"));
-        noiseRedAct->setObjectName(QString("Noise Reduction"));
+  AudioProject::~AudioProject()
+  {
+      delete ui;
+  }
 
-        QMenu *fileMenu = ui->menuBar->addMenu(QString("File"));
-        QMenu *importMenu = fileMenu->addMenu(QString("Import"));
-        QAction *rawAct = importMenu->addAction(QString("Raw Data"));
+  void AudioProject::createMenus() {
+      QMenu *effectMenu = ui->menuBar->addMenu(QString("Effect"));
+      QAction *amplifyAct = effectMenu->addAction(QString("Amplify"));
+      amplifyAct->setObjectName(QString("Amplify"));
+      QAction *noiseRedAct = effectMenu->addAction(QString("Noise Reduction"));
+      noiseRedAct->setObjectName(QString("Noise Reduction"));
 
-        // EffectMenu
-        connect(amplifyAct, SIGNAL(triggered()), this, SLOT(menuClicked()));
-        connect(noiseRedAct, SIGNAL(triggered()), this, SLOT(menuClicked()));
+      QMenu *fileMenu = ui->menuBar->addMenu(QString("File"));
+      QMenu *importMenu = fileMenu->addMenu(QString("Import"));
+      QMenu *exportMenu = fileMenu->addMenu(QString("Export"));
+      QAction *rawAct = importMenu->addAction(QString("Raw Data"));
+      QAction *audioAct = exportMenu->addAction(QString("Export Audio"));
 
-        // FileMenu
-        connect(rawAct, SIGNAL(triggered()), this, SLOT(fileClicked()));
-    }
+      // EffectMenu
+      connect(amplifyAct, SIGNAL(triggered()), this, SLOT(menuClicked()));
+      connect(noiseRedAct, SIGNAL(triggered()), this, SLOT(menuClicked()));
 
-    void AudioProject::menuClicked() {
-        doEffect();
-    }
+      // FileMenu
+      connect(rawAct, SIGNAL(triggered()), this, SLOT(fileClicked()));
+      connect(audioAct, SIGNAL(triggered()), this, SLOT(exportClicked()));
+  }
 
-    void AudioProject::fileClicked() {
-        onImportRaw();
-    }
+  void AudioProject::menuClicked() {
+      doEffect();
+  }
 
-    void AudioProject::onImportRaw() {
-        QString fileName =
-                QFileDialog::getOpenFileName(this, tr("Open File"),
-                                             "c://Users//Administrator//Desktop",
-                                             tr("PCM files (*.pcm)"));
-        if (fileName.isNull()) {
-            return;
-        }
+  void AudioProject::fileClicked() {
+      onImportRaw();
+  }
 
-        TrackHolders newTracks;
+  void AudioProject::exportClicked() {
+      onExportAudio();
+  }
 
-        importRaw(this, fileName, mTrackFactory.get(), newTracks);
+  void AudioProject::onImportRaw() {
+      QString fileName =
+              QFileDialog::getOpenFileName(this, tr("Open File"),
+                                           "c://Users//Administrator//Desktop",
+                                           tr("PCM files (*.pcm)"));
+      if (fileName.isNull()) {
+              return;
+          }
 
-        if (newTracks.size() <= 0)
-            return;
+      TrackHolders newTracks;
 
-        addImportedTracks(fileName, std::move(newTracks));
+      importRaw(this, fileName, mTrackFactory.get(), newTracks);
 
-    }
+      if (newTracks.size() <= 0)
+          return;
 
-    std::vector< std::shared_ptr< Track > >
-    AudioProject::addImportedTracks(const QString &fileName,
-                                    TrackHolders &&newTracks)
-    {
-        std::vector< std::shared_ptr< Track > > results;
+      addImportedTracks(fileName, std::move(newTracks));
+
+  }
+
+  void AudioProject::onExportAudio() {
+      doExport("");
+  }
+
+  std::vector< std::shared_ptr< Track > >
+  AudioProject::addImportedTracks(const QString &fileName,
+                                  TrackHolders &&newTracks)
+  {
+      std::vector< std::shared_ptr< Track > > results;
 
 
-        bool initiallyEmpty = mTracks->empty();
-        double newRate = 0;
-        int i = -1;
+      bool initiallyEmpty = mTracks->empty();
+      double newRate = 0;
+      int i = -1;
 
-        // Must add all tracks first (before using Track::IsLeader)
-        for (auto &group : newTracks) {
-            if (group.empty()) {
-                //             wxASSERT(false);
-                continue;
-            }
-            auto first = group.begin()->get();
-            auto nChannels = group.size();
-            for (auto &uNewTrack : group) {
-                auto newTrack = mTracks->Add(std::move(uNewTrack));
-                if (newRate == 0)
-                    newRate = dynamic_cast<WaveTrack*>(newTrack)->GetRate();
-                newTrack->SetSelected(true);
-            }
-            mTracks->GroupChannels(*first, nChannels);
-        }
-        newTracks.clear();
+      // Must add all tracks first (before using Track::IsLeader)
+      for (auto &group : newTracks) {
+              if (group.empty()) {
+                      //             wxASSERT(false);
+                      continue;
+                  }
+              auto first = group.begin()->get();
+              auto nChannels = group.size();
+              for (auto &uNewTrack : group) {
+                      auto newTrack = mTracks->Add(std::move(uNewTrack));
+                      if (newRate == 0)
+                          newRate = dynamic_cast<WaveTrack*>(newTrack)->GetRate();
+                      newTrack->SetSelected(true);
+                  }
+              mTracks->GroupChannels(*first, nChannels);
+          }
+      newTracks.clear();
 
-        mRate = newRate;
+      mRate = newRate;
 
-        return results;
-    }
+      return results;
+  }
 
-    void AudioProject::doEffect() {
-        QString pluginID;
-        QObject *obj = this->sender();
-        if (obj->objectName() == QString("Amplify")) {
-            pluginID = QString("Effect_Audacity_Audacity_Amplify_Built-in Effect: Amplify");
-        } else {
-            pluginID = QString("");
-        }
-        auto tracks = GetTracks();
-        auto rate = GetRate();
-        auto &selectedRegion = GetSelection();
-        const PluginDescriptor *plug = PluginManager::get().getPlugin(pluginID);
-        if (!plug)
-            return;
-        EffectType type = plug->getEffectType();
+  void AudioProject::doEffect() {
+      QString pluginID;
+      QObject *obj = this->sender();
+      if (obj->objectName() == QString("Amplify")) {
+              pluginID = QString("Effect_Audacity_Audacity_Amplify_Built-in Effect: Amplify");
+          } else {
+              pluginID = QString("");
+          }
+      auto tracks = GetTracks();
+      auto rate = GetRate();
+      //     这里和原始代码有些出入 自己改了一下
+      auto &selectedRegion = GetSelection();
+      auto maxEnd = tracks->GetEndTime();
+      selectedRegion.setT1(maxEnd);
 
-        auto nTracksOriginally = getTrackCount();
+      const PluginDescriptor *plug = PluginManager::get().getPlugin(pluginID);
+      if (!plug)
+          return;
+      EffectType type = plug->getEffectType();
 
-//        int count = 0;
-//        bool clean = true;
-//        for (auto t : tracks->Selected< const WaveTrack >()) {
-//            if (t->GetEndTime() != 0.0)
-//                clean = false;
-//            count++;
-//        }
+      auto nTracksOriginally = getTrackCount();
 
-        EffectManager & em = EffectManager::Get();
-        bool success = em.DoEffect(pluginID, this, rate,
-              tracks, mTrackFactory.get(), &selectedRegion,
-              true);
-    }
+      //        int count = 0;
+      //        bool clean = true;
+      //        for (auto t : tracks->Selected< const WaveTrack >()) {
+      //            if (t->GetEndTime() != 0.0)
+      //                clean = false;
+      //            count++;
+      //        }
+
+      EffectManager & em = EffectManager::Get();
+      bool success = em.DoEffect(pluginID, this, rate,
+                                 tracks, mTrackFactory.get(), &selectedRegion,
+                                 true);
+  }
+
+  void AudioProject::doExport(const QString& format) {
+      auto tracks = GetTracks();
+
+      Exporter e;
+
+      double t0 = 0.0;
+      double t1 = tracks->GetEndTime();
+
+      e.SetDefaultFormat(format);
+      e.Process(this, false, t0, t1);
+  }
+
+  const Tags *AudioProject::GetTags()
+  {
+      return mTags.get();
+  }
 }

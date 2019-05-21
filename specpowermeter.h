@@ -14,7 +14,7 @@
 #include <cstddef>
 #include "../SampleFormat.h"
 
-namespace RF {
+namespace Renfeng {
     class SpecPowerCalculation
     {
         const size_t mSigLen;

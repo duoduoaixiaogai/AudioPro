@@ -1,7 +1,7 @@
 ﻿#include "overlaypanel.h"
 #include "overlay.h"
 
-namespace RF {
+namespace Renfeng {
         OverlayPanel::OverlayPanel(QWidget *parent)
             :BackedPanel(parent){}
         void OverlayPanel::addOverlay(Overlay *pOverlay) {

@@ -8,7 +8,7 @@
 
 #include <QMap>
 
-namespace RF {
+namespace Renfeng {
     typedef enum {
         PluginTypeNone = 0,
         PluginTypeStub = 1,

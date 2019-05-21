@@ -8,7 +8,7 @@
 //#include <wx/wxchar.h>
 #include <math.h>
 
-namespace RF {
+namespace Renfeng {
     class XMLWriter;
 
     class SelectedRegion {

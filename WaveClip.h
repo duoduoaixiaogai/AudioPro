@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace RF {
+namespace Renfeng {
 
     class Sequence;
     class DirManager;
@@ -32,6 +32,14 @@ namespace RF {
         std::pair<float, float> GetMinMax(
               double t0, double t1, bool mayThrow = true) const;
         void TimeToSamplesClip(double t0, sampleCount *s0) const;
+        sampleCount GetStartSample() const;
+        sampleCount GetEndSample() const;
+        sampleCount GetNumSamples() const;
+        bool GetSamples(samplePtr buffer, sampleFormat format,
+                           sampleCount start, size_t len, bool mayThrow = true) const;
+        void SetSamples(samplePtr buffer, sampleFormat format,
+                           sampleCount start, size_t len);
+        Envelope* GetEnvelope() { return mEnvelope.get(); }
     protected:
         std::unique_ptr<Sequence> mSequence;
         double mOffset { 0 };

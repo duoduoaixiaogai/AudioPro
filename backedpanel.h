@@ -3,7 +3,7 @@
 
 #include "panelwrapper.h"
 
-namespace RF {
+namespace Renfeng {
     class BackedPanel : public FrameWrapper {
     public:
         BackedPanel(QWidget *parent = nullptr);

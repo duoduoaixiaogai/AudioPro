@@ -5,7 +5,7 @@
 #include <QString>
 #include <type_traits>
 
-namespace RF {
+namespace Renfeng {
     class sampleCount
     {
     public:

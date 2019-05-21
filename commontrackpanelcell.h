@@ -3,7 +3,7 @@
 
 #include "trackpanelcell.h"
 
-namespace RF {
+namespace Renfeng {
     class Track;
 
     class CommonTrackPanelCell : public TrackPanelCell

@@ -1,6 +1,6 @@
 ﻿#include "ViewInfo.h"
 
-namespace RF {
+namespace Renfeng {
     ZoomInfo::ZoomInfo(double start, double pixelsPerSecond) {
 
     }

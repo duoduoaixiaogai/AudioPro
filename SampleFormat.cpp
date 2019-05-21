@@ -1,7 +1,7 @@
 ﻿#include "SampleFormat.h"
 #include "Dither.h"
 
-namespace RF {
+namespace Renfeng {
     static DitherType gLowQualityDither = DitherType::none;
     static DitherType gHighQualityDither = DitherType::none;
     static Dither gDitherAlgorithm;
@@ -23,5 +23,23 @@ namespace RF {
     {
        auto size = SAMPLE_SIZE(format);
        memset(dst + start*size, 0, len*size);
+    }
+
+    void ReverseSamples(samplePtr dst, sampleFormat format,
+                      int start, int len)
+    {
+       auto size = SAMPLE_SIZE(format);
+       samplePtr first = dst + start * size;
+       samplePtr last = dst + (start + len - 1) * size;
+       enum : size_t { fixedSize = SAMPLE_SIZE(floatSample) };
+//       wxASSERT(static_cast<size_t>(size) <= fixedSize);
+       char temp[fixedSize];
+       while (first < last) {
+          memcpy(temp, first, size);
+          memcpy(first, last, size);
+          memcpy(last, temp, size);
+          first += size;
+          last -= size;
+       }
     }
 }

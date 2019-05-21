@@ -5,7 +5,7 @@
 //#include "componentinterface.h"
 //#include "moduleinterface.h"
 
-namespace RF {
+namespace Renfeng {
 
     class ComponentInterface;
     class ModuleInterface;

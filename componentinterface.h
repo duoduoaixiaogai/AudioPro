@@ -3,7 +3,7 @@
 
 #include <QString>
 
-namespace RF {
+namespace Renfeng {
     class ComponentInterfaceSymbol {
     public:
         ComponentInterfaceSymbol() = default;

@@ -5,7 +5,7 @@
 
 #include <QMap>
 
-namespace RF {
+namespace Renfeng {
 
     struct ModuleInterfaceDeleter {
         void operator ()(ModuleInterface *pInterface) const;

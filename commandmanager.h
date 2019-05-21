@@ -1,7 +1,7 @@
 ﻿#ifndef COMMANDMANAGER_H
 #define COMMANDMANAGER_H
 
-namespace RF {
+namespace Renfeng {
     class CommandManager {
     public:
         CommandManager() {}

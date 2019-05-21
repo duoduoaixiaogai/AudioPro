@@ -1,7 +1,7 @@
 ﻿#include "SimpleBlockFile.h"
 #include "SampleFormat.h"
 
-namespace RF {
+namespace Renfeng {
     SimpleBlockFile::SimpleBlockFile(QFileInfo &&baseFileName,
                                      samplePtr sampleData, size_t sampleLen,
                                      sampleFormat format,

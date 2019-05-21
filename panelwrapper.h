@@ -3,7 +3,7 @@
 
 #include <QFrame>
 
-namespace RF {
+namespace Renfeng {
     template<typename Base>
     class TraversalWrapper : public Base {
     public:

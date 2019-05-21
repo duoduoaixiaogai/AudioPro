@@ -7,7 +7,7 @@
 
 #include <QFileInfo>
 
-namespace RF {
+namespace Renfeng {
 
     class AliasBlockFile;
 

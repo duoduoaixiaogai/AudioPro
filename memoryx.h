@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-namespace RF {
+namespace Renfeng {
     template <typename T>
     struct Destroyer {
        void operator () (T *p) const { if (p) p->deleteLater(); }
@@ -295,6 +295,14 @@ namespace RF {
           return this->sum( std::mem_fn( pmf ) );
        }
     };
+
+    template< typename Container, typename Iterator, typename Function >
+    Container transform_range( Iterator first, Iterator last, Function &&fn )
+    {
+       Container result;
+       std::transform( first, last, std::back_inserter( result ), fn );
+       return result;
+    }
 }
 
 #endif

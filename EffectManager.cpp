@@ -3,7 +3,7 @@
 #include "effect.h"
 #include "pluginmanager.h"
 
-namespace RF {
+namespace Renfeng {
     EffectManager & EffectManager::Get()
     {
        static EffectManager em;

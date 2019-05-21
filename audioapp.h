@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-namespace RF {
+namespace Renfeng {
     class AudioApp : public QObject {
     public:
        AudioApp() = default;

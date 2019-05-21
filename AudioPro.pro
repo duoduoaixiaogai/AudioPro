@@ -62,7 +62,12 @@ SOURCES += main.cpp\
     EffectManager.cpp \
     SelectedRegion.cpp \
     amplifydialog.cpp \
-    amplifyform.cpp
+    amplifyform.cpp \
+    export.cpp \
+    exportpcm.cpp \
+    mix.cpp \
+    tags.cpp \
+    resample.cpp
 
 HEADERS  += project.h \
     audioapp.h \
@@ -113,13 +118,22 @@ HEADERS  += project.h \
     EffectManager.h \
     SelectedRegion.h \
     amplifydialog.h \
-    amplifyform.h
+    amplifyform.h \
+    export.h \
+    exportpcm.h \
+    mix.h \
+    tags.h \
+    progressdialog.h \
+    timetrack.h \
+    resample.h
 
 FORMS    += project.ui \
     importrawdialog.ui \
     amplifydialog.ui \
     amplifyform.ui
 
-LIBS += -Lf:/AudioPro/libsndfile/libs -llibsndfile
+LIBS += -L$(GITHUBPATH)/AudioPro/libsndfile/libs -llibsndfile
+#LIBS += -Lf:/AudioPro/libsndfile/libs -llibsndfile
 
-INCLUDEPATH = f:/AudioPro/libsndfile
+INCLUDEPATH = $(GITHUBPATH)/AudioPro/libsndfile
+#INCLUDEPATH = f:/AudioPro/libsndfile

@@ -9,7 +9,7 @@
 
 #include <QFileInfo>
 
-namespace RF{
+namespace Renfeng{
 
     class BlockFile;
     using BlockFilePtr = std::shared_ptr<BlockFile>;

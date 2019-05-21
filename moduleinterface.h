@@ -6,7 +6,7 @@
 
 #include <functional>
 
-namespace RF {
+namespace Renfeng {
 
     class ModuleInterface : public ComponentInterface {
     public:

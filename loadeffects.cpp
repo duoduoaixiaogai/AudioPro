@@ -3,7 +3,7 @@
 #include "amplify.h"
 #include "noisereduction.h"
 
-namespace RF {
+namespace Renfeng {
 
 #define EFFECT_LIST \
     EFFECT(AMPLIFY, EffectAmplify, ()) \
@@ -34,7 +34,7 @@ namespace RF {
     DECLARE_BUILTIN_MODULE(BuiltinsEffectBuiltin)
 
     // BuiltinEffectsdModule
-    BuiltinEffectsModule::BuiltinEffectsModule(RF::ModuleManagerInterface *moduleManager,
+    BuiltinEffectsModule::BuiltinEffectsModule(Renfeng::ModuleManagerInterface *moduleManager,
                                                const QString *path) {
         mModMan = moduleManager;
         if (path) {

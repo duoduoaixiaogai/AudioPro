@@ -56,7 +56,7 @@ public:
 
 #endif
 
-namespace RF {
+namespace Renfeng {
     class FormatClassifier
     {
     public:

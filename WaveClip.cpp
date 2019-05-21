@@ -2,7 +2,7 @@
 #include "Envelope.h"
 #include "Sequence.h"
 
-namespace RF {
+namespace Renfeng {
 
     WaveClip::WaveClip(const std::shared_ptr<DirManager> &projDirManager,
                        sampleFormat format, int rate, int colourIndex)
@@ -160,5 +160,37 @@ namespace RF {
           *s0 = mSequence->GetNumSamples();
        else
           *s0 = sampleCount( floor(((t0 - mOffset) * mRate) + 0.5) );
+    }
+
+    sampleCount WaveClip::GetStartSample() const
+    {
+       return sampleCount( floor(mOffset * mRate + 0.5) );
+    }
+
+    sampleCount WaveClip::GetEndSample() const
+    {
+       return GetStartSample() + mSequence->GetNumSamples();
+    }
+
+    sampleCount WaveClip::GetNumSamples() const
+    {
+       return mSequence->GetNumSamples();
+    }
+
+    bool WaveClip::GetSamples(samplePtr buffer, sampleFormat format,
+                       sampleCount start, size_t len, bool mayThrow) const
+    {
+       return mSequence->Get(buffer, format, start, len, mayThrow);
+    }
+
+    void WaveClip::SetSamples(samplePtr buffer, sampleFormat format,
+                       sampleCount start, size_t len)
+    // STRONG-GUARANTEE
+    {
+       // use STRONG-GUARANTEE
+       mSequence->SetSamples(buffer, format, start, len);
+
+       // use NOFAIL-GUARANTEE
+       MarkChanged();
     }
 }

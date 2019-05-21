@@ -5,7 +5,7 @@
 #include <QStringList>
 #include <QPushButton>
 
-namespace RF {
+namespace Renfeng {
     ImportRawDialog::ImportRawDialog(int encoding, unsigned channels,
                                      int offset, double rate,
                                      QWidget *parent) :

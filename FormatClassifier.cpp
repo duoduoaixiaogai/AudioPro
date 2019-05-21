@@ -30,7 +30,7 @@ for classification of the sample format and the used endianness.
 #include "MultiFormatReader.h"
 #include "sndfile.h"
 
-namespace RF {
+namespace Renfeng {
     FormatClassifier::FormatClassifier(const char* filename) :
         mReader(filename),
         mMeter(cSiglen)

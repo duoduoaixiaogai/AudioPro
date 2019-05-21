@@ -1,6 +1,6 @@
 ﻿#include "Envelope.h"
 
-namespace RF {
+namespace Renfeng {
 
     Envelope::Envelope(bool exponential, double minValue, double maxValue, double defaultValue)
        : mDB(exponential)
@@ -266,5 +266,13 @@ namespace RF {
        while ( after != end && after->GetT() <= when + tolerance )
           ++after;
        return { first - begin, after - begin };
+    }
+
+    void Envelope::GetValues( double *buffer, int bufferLen,
+                              double t0, double tstep ) const
+    {
+       // Convert t0 from absolute to clip-relative time
+       t0 -= mOffset;
+       GetValuesRelative( buffer, bufferLen, t0, tstep);
     }
 }

@@ -4,7 +4,7 @@
 #include "SampleFormat.h"
 
 
-namespace RF {
+namespace Renfeng {
     /// These ditherers are currently available:
     enum DitherType : unsigned {
         none = 0, rectangle = 1, triangle = 2, shaped = 3 };
